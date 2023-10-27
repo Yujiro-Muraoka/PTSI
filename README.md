@@ -4,4 +4,3 @@
 さらなるテスト
 さらさらばるテスト
 testtest
-aiueo
