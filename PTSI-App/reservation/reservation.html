@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="reservation.css">
+</head>
+
+<body>
+    <div class="top-box">
+        <p class="app-title">登降園管理システム</p>
+        <!-- ログアウトボタン -->
+        <div class="logout-box">
+            <input type="button" class="logout" value="Logout" onclick="logout()">
+        </div>
+    </div>
+
+    <div class="main-box">
+
+        <div class="container"></div>
+
+        <form id="myForm" class="info-box">
+            <div class="info-box-box">
+                <p>１：申し込む日付を選択してください</p>
+                <div class="date">
+                    <input type="date" name="date" id="date">
+                </div>
+                <p>２：申し込む形態を選択してください</p>
+                <label class="Radio">
+                    <input name="radio" class="Radio-Input" type="radio" value="type1">
+                    <span class="Radio-Text">遅刻申請</span>
+                </label>
+                <label class="Radio">
+                    <input name="radio" class="Radio-Input" type="radio" value="type2">
+                    <span class="Radio-Text">早退申請</span>
+                </label>
+                <label class="Radio">
+                    <input name="radio" class="Radio-Input" type="radio" value="type3">
+                    <span class="Radio-Text">預かり保育予約</span>
+                </label>
+                <label class="Radio">
+                    <input name="radio" class="Radio-Input" type="radio" value="type4">
+                    <span class="Radio-Text">延長保育予約</span>
+                </label>
+            </div>
+            <div class="info-box-box">
+                <div class="white-box" id="white-box"></div>
+                <input type="button" class="send" value="申し込みを確定する" onclick="sendData()">
+            </div>
+        </form>
+
+    </div>
+    <div id="result"></div>
+        
+</body>
+<script src="reservation.js"></script>
+
+</html>

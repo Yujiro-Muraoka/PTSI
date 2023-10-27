@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSVファイルを読み込んでグラフを表示</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <input type="file" id="csvFile" accept=".csv">
+    <div id="chartContainer"></div>
+    <canvas id="stage"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
+<script>
+    //「月別データ」
+    var mydata = {
+        labels: ["１月", "２月", "３月", "４月", "５月", "６月", "７月", "８月", "９月", "１０月", "１１月", "１２月"],
+        datasets: [
+            {
+                label: '数量',
+                hoverBackgroundColor: "rgba(64,145,291,0.5)", 
+                data: [65, 59, 80, 81, 56, 100, 48, 50, 60, 70, 80, 90],
+            }
+        ]
+    };
+
+    //「オプション設定」
+    var options = {
+        title: {
+            display: true,
+            text: 'サンプルチャート'
+        }
+    };
+
+    var canvas = document.getElementById('stage');
+    var chart = new Chart(canvas, {
+
+        type: 'bar',  //グラフの種類
+        data: mydata,  //表示するデータ
+        options: options  //オプション設定
+
+    });
+</script>
+
+<!-- https://www.chartjs.org/docs/latest/samples/other-charts/doughnut.html -->

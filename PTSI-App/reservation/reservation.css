@@ -1,0 +1,188 @@
+.main-box {
+    height: 35rem;
+    display: flex;
+    width: 100%;
+}
+
+.container {
+    background-color: #72ad38;
+    border-radius: 1.2rem;
+    height: 100%;
+    width: 20%;
+    margin-right: 1rem;
+}
+
+.name {
+    font-size: 2.4rem;
+    font-weight: bold;
+    margin-top: 3rem;
+    margin-left: 2rem;
+}
+
+.student-info {
+    font-size: 2rem;
+    margin-left: 2rem;
+    margin-top: 2rem;
+}
+
+.info-box {
+    background-color: #fbb42e;
+    border-radius: 1.2rem;
+    height: 100%;
+    width: 80%;
+    margin-left: 1rem;
+    display: flex;
+}
+
+.info-box-box {
+    /* width: 50%; */
+    margin: 20px;
+    font-size: 2rem;
+}
+
+.info-box-box:first-child {
+    width: 40%;
+}
+
+.info-box-box:last-child {
+    width: 60%;
+}
+
+.info-box-box p,
+.info-box-box div,
+.info-box-box label span {
+    font-weight: bold;
+    margin: 1.6rem 0 1.6rem 0;
+}
+
+
+.date {
+    background-color: #52a8da;
+    border-radius: 1rem;
+    height: 4rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#date {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+
+/* ラジオボタン */
+
+* {
+    box-sizing: border-box;
+}
+
+*::before {
+    box-sizing: border-box;
+}
+
+*::after {
+    box-sizing: border-box;
+}
+
+.Radio-Input {
+    appearance: none;
+    position: absolute;
+}
+
+.Radio {
+    cursor: pointer;
+}
+
+.Radio-Text::before {
+    content: '';
+    display: block;
+    border-radius: 50%;
+    border: 2px solid #52a8da;
+    width: 25px;
+    height: 25px;
+    margin-right: 2rem;
+}
+
+.Radio-Text::after {
+    content: '';
+    display: block;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    background-color: #52a8da;
+}
+
+.Radio-Text {
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+}
+
+.Radio-Text::after {
+    content: '';
+    position: absolute;
+    left: 3.5px;
+    display: block;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    background-color: #fbb42e;
+}
+
+.Radio-Input:checked+.Radio-Text::after {
+    content: '';
+    position: absolute;
+    left: calc(8px - 4.5px);
+    display: block;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    background-color: #52a8da;
+}
+
+
+/* ラジオボタンここまで */
+
+.send {
+    border: 3px solid #52a8da;
+    border-radius: 1.2rem;
+    padding: 0.7rem;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+}
+
+.send:hover {
+    background-color: #52a8da;
+    transition: ease-in-out 0.2s;
+}
+
+.white-box {
+    background-color: #ffffff;
+    border-radius: 1.2rem;
+    height: 80%;
+}
+
+.white-box p {
+    font-size: 2rem;
+    font-weight: bold;
+    padding-top: 1.2rem;
+    margin-left: 20px;
+    color: black;
+}
+
+.white-box label span {
+    margin-left: 20px;
+    color: black;
+
+}
+
+.white-box .Radio-Text::after {
+
+    background-color: #ffffff;
+}

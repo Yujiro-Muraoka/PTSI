@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+    <div class="top-box">
+        <p class="app-title">登降園管理システム</p>
+    </div>
+    <form id="login-form" class="info-box">
+        <div class="white-box">
+            <p class="info-title">ユーザー認証</p>
+            <input type="text" name="studen-id" id="student-id" placeholder="Student ID">
+            <input type="password" name="password" id="password" placeholder="Password">
+            <input type="button" class="send" value="Login" onclick="login()">
+        </div>
+
+
+
+    </form>
+
+    <div id="result"></div>
+        
+</body>
+<script src="login.js"></script>
+
+</html>

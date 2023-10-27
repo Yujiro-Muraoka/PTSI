@@ -1,0 +1,15 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 50px;
+}
+
+#csvFile {
+    margin-bottom: 20px;
+}
+
+#chartContainer {
+    width: 80%;
+    height: 400px;
+    margin: 0 auto;
+}
