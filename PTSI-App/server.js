@@ -1,3 +1,16 @@
+/**
+ * PTSI幼稚園管理システム - メインサーバー
+ * Express.jsを使用したWebアプリケーション
+ * 
+ * 機能:
+ * - ユーザー認証
+ * - 予約管理
+ * - チャット機能（Socket.IO使用）
+ * - 学生情報管理
+ * 
+ * @author Yujiro Muraoka
+ */
+
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -34,8 +47,6 @@ app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
 app.use('/login', express.static(path.join(__dirname, 'login')));
 app.use('/reservation', express.static(path.join(__dirname, 'reservation')));
 app.use('/chat', express.static(path.join(__dirname, 'chat')));
-// app.use('/DB', express.static(path.join(__dirname, 'DB')));
-
 // 各ディレクトリ内の唯一のHTMLファイルを直接開く
 app.get('/chart', (req, res) => {
   res.sendFile(path.join(__dirname, 'chart', 'index.html'));
@@ -57,22 +68,16 @@ app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, 'chat', 'chat.html'));
 });
 
-// ルートパスへのアクセス時にはindex.htmlを返す
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'index.html'));
-// });
-
 // ルートパスへのアクセス時に/loginにリダイレクトする
 app.get('/', (req, res) => {
   res.redirect('/login');
 });
 
 
-// 保護者の予約情報を取得し記録する
-// フォームを扱うための設定（既に上部で設定済み）
-// app.use(express.json()); // 重複のためコメントアウト
-
-// JSONデータの送信を処理するルート
+/**
+ * 保護者の予約情報を受信してCSVファイルに記録するAPI
+ * 重複チェックを行い、同一学生・同一日付の予約を防ぐ
+ */
 app.post('/submit', (req, res) => {
   const studentID = req.body.studentID.replace(/[０-９]/g, function(s) {
     return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
@@ -174,7 +179,10 @@ app.post('/studentInfo', (req, res) => {
   });
 });
 
-// パスワードの認証用のAPI
+/**
+ * ユーザー認証API
+ * 学生IDとパスワードを照合してログイン認証を行う
+ */
 app.post('/passwordAuthentication', (req, res) => {
   const { studentId, password } = req.body;
   

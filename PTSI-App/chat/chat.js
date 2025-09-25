@@ -1,9 +1,14 @@
-// チャット機能のJavaScript
+/**
+ * チャット機能を管理するメインクラス
+ * Socket.IOを使用したリアルタイムチャット機能を提供
+ * 
+ * @author Yujiro Muraoka
+ */
 class ChatApp {
     constructor() {
         this.currentUser = null;
         this.currentRoom = 'general';
-        this.currentChatType = 'room'; // 'room', 'direct', 'announcement'
+        this.currentChatType = 'room'; // 'room'(ルーム), 'direct'(個人), 'announcement'(お知らせ)
         this.currentDirectUserId = null;
         this.messages = [];
         this.admins = [];
@@ -11,6 +16,10 @@ class ChatApp {
         this.init();
     }
 
+    /**
+     * チャットアプリケーションの初期化処理
+     * @returns {void}
+     */
     init() {
         this.loadUserInfo();
         this.loadAdmins();
@@ -21,9 +30,12 @@ class ChatApp {
         this.setupModalListeners();
     }
 
-    // ユーザー情報の読み込み
+    /**
+     * ユーザー情報を読み込む
+     * Cookieから学生IDを取得し、サーバーからユーザー情報を取得
+     * @returns {void}
+     */
     loadUserInfo() {
-        // Cookieから学生IDを取得
         const studentId = this.getCookie('studentID');
         
         if (studentId) {
@@ -35,10 +47,15 @@ class ChatApp {
         }
     }
 
-    // Cookieから値を取得
+    /**
+     * Cookieから指定された名前の値を取得する
+     * @param {string} name - 取得するCookieの名前
+     * @returns {string} Cookieの値（見つからない場合は空文字）
+     */
     getCookie(name) {
         const decodedCookie = decodeURIComponent(document.cookie);
         const cookies = decodedCookie.split(';');
+        
         for (let i = 0; i < cookies.length; i++) {
             let cookie = cookies[i];
             while (cookie.charAt(0) === ' ') {
@@ -51,7 +68,11 @@ class ChatApp {
         return '';
     }
 
-    // サーバーからユーザー情報を取得
+    /**
+     * サーバーからユーザー情報を取得する
+     * @param {string} studentId - 学生ID
+     * @returns {void}
+     */
     fetchUserInfo(studentId) {
         fetch('/chat/user-info', {
             method: 'POST',
@@ -71,7 +92,7 @@ class ChatApp {
             }
         })
         .catch(error => {
-            console.error('エラー:', error);
+            console.error('ユーザー情報取得エラー:', error);
             window.location.href = '/login';
         });
     }

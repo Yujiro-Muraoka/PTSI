@@ -1,20 +1,18 @@
-/* レスポンシブ対応：最小幅を削除 */
-/* body {
-    min-width: 450px;
-} */
-
+/* ログインページ専用テキストスタイル - 黒色でコントラストを確保 */
 p {
     color: #000;
     font-size: 1.8rem;
 }
 
+/* ログインフォームのタイトル */
 .info-title {
     font-size: 2rem;
     text-align: center;
     margin-top: 1.2rem;
-    margin-bottom: 1.2rem;;
+    margin-bottom: 1.2rem;
 }
 
+/* ログインフォームの白色コンテナ */
 .white-box {
     background-color: #fff;
     border-radius: 1.2rem;
@@ -25,6 +23,7 @@ p {
     align-items: center;
 }
 
+/* 学生ID・パスワード入力フィールド */
 #student-id, 
 #password {
     border: 3px solid #72ad38;
@@ -36,6 +35,7 @@ p {
     font-size: 1.6rem;
 }
 
+/* ログインフォーム全体のコンテナ */
 #login-form {
     background-color: #fbb42e;
     border-radius: 1.2rem;
@@ -46,6 +46,7 @@ p {
     align-items: center;
 }
 
+/* ログインボタン */
 .send {
     border: 3px solid #52a8da;
     border-radius: 1.2rem;

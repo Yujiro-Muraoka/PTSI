@@ -1,46 +1,60 @@
-// ページが読み込まれた際に実行する関数
+/**
+ * ページ読み込み時の初期化処理
+ * ログイン状態をチェックし、未ログインの場合はログインページへリダイレクト
+ */
 window.onload = function() {
-    var studentID = getCookie("studentID");
+    const studentID = getCookie("studentID");
+    
     if (studentID !== "") {
-      // ログイン状態にする処理
-      console.log("Cookie発見"+studentID);
-      getStudentInfo(studentID);
-
-    }
-    else {
-        // ログインページにリダイレクトする処理
-        console.log("Cookieなし");
+        // ログイン済み：学生情報を取得して画面を初期化
+        console.log("認証済みユーザー: " + studentID);
+        getStudentInfo(studentID);
+    } else {
+        // 未ログイン：ログインページへリダイレクト
+        console.log("未認証ユーザー：ログインページへリダイレクト");
         location.href = "../login";
-        // alert("ログインしてください。");
-
     }
 }
 
-// チャットページへの移動
+/**
+ * チャットページへ移動する関数
+ * @returns {void}
+ */
 function goToChat() {
     window.location.href = "/chat";
 }
   
+/**
+ * Cookieから指定された名前の値を取得する関数
+ * @param {string} name - 取得するCookieの名前
+ * @returns {string} Cookieの値（見つからない場合は空文字）
+ */
 function getCookie(name) {
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var cookies = decodedCookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i];
-        while (cookie.charAt(0) == ' ') {
-            cookie = cookie.substring(1);
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(';');
+    
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i];
+        // 先頭の空白を削除
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1, cookie.length);
         }
-        if (cookie.indexOf(name + '=') == 0) {
-            return cookie.substring(name.length + 1, cookie.length); // '='以降の部分を返す
+        // 指定された名前のCookieを発見した場合、値を返す
+        if (cookie.indexOf(nameEQ) === 0) {
+            return cookie.substring(nameEQ.length, cookie.length);
         }
     }
     return "";
 }
   
-//  今日の日付をデフォルトにする
+// 今日の日付をデフォルト値として設定
 document.getElementById('date').valueAsDate = new Date();
 
 
-// 申し込み形式の選択によって表示する項目を変更する
+/**
+ * 申し込み形式の選択に応じて表示項目を動的に変更する
+ * DOMが読み込まれた後にイベントリスナーを設定
+ */
 document.addEventListener('DOMContentLoaded', function () {
     const radioButtons = document.querySelectorAll('.Radio-Input');
     const newRadioContainer = document.getElementById('white-box');
@@ -50,7 +64,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const selectedValue = event.target.value;
             const selectedText = event.target.nextElementSibling.textContent;
 
-            newRadioContainer.innerHTML = ''; // 以前の要素をクリア
+            // 以前の選択内容をクリア
+            newRadioContainer.innerHTML = '';
 
             switch (selectedValue) {
                 case 'type1':
@@ -153,13 +168,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * 新しいラジオボタン要素を動的に生成する関数
+     * @param {string} value - ラジオボタンの値
+     * @param {string} labelText - ラベルテキスト
+     * @returns {void}
+     */
     function createNewRadio(value, labelText) {
-        var newRadio = document.createElement('input');
+        const newRadio = document.createElement('input');
         newRadio.type = 'radio';
         newRadio.name = 'newOptions';
         newRadio.value = value;
 
-        var label = document.createElement('label');
+        const label = document.createElement('label');
         label.textContent = labelText;
 
         newRadioContainer.appendChild(newRadio);
@@ -169,27 +190,36 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+/**
+ * ユーザーをログアウトさせる関数
+ * Cookieを削除してログインページにリダイレクト
+ * @returns {void}
+ */
 function logout() {
     // Cookieを削除するために有効期限を過去の日付に設定
-    var date = new Date();
-    date.setTime(date.getTime() - (24 * 60 * 60 * 1000)); // 昨日の日付に設定
-    var expires = "expires=" + date.toUTCString();
+    const date = new Date();
+    date.setTime(date.getTime() - (24 * 60 * 60 * 1000)); // 24時間前に設定
+    const expires = "expires=" + date.toUTCString();
 
-    // Cookieを削除
+    // 学生IDのCookieを削除
     document.cookie = "studentID=; " + expires + "; path=/";
     
-    // alert("ログアウトしました。");
-    // ログアウト後の処理（例：ログインページにリダイレクト）
+    // ログインページにリダイレクト
     location.href = "../login";
 }
 
 
+/**
+ * 予約データをサーバーに送信する関数
+ * フォームの入力値を検証してからサーバーに送信
+ * @returns {void}
+ */
 function sendData() {
-    var studentID = getCookie("studentID");
-    var dateElement = document.getElementById("date");
-    var checkedRadio = document.querySelector('input[name="radio"]:checked');
+    const studentID = getCookie("studentID");
+    const dateElement = document.getElementById("date");
+    const checkedRadio = document.querySelector('input[name="radio"]:checked');
 
-    // バリデーションチェック
+    // 入力値のバリデーション
     if (!studentID) {
         alert("ログイン情報が見つかりません。再ログインしてください。");
         location.href = "../login";
@@ -201,9 +231,9 @@ function sendData() {
         return;
     }
 
-    // 日付が過去でないかチェック
-    var selectedDate = new Date(dateElement.value);
-    var today = new Date();
+    // 選択日が過去でないかチェック
+    const selectedDate = new Date(dateElement.value);
+    const today = new Date();
     today.setHours(0, 0, 0, 0); // 時刻をリセット
     
     if (selectedDate < today) {
@@ -216,12 +246,12 @@ function sendData() {
         return;
     }
 
-    var date = dateElement.value;
-    var type = checkedRadio.value;
+    const date = dateElement.value;
+    const type = checkedRadio.value;
 
-    console.log(studentID + " " + date + " " + type);
+    console.log("予約送信データ:", studentID, date, type);
 
-    var data = {
+    const data = {
         studentID: studentID,
         date: date,
         type: type
@@ -244,6 +274,11 @@ function sendData() {
     });
 }
 
+/**
+ * 学生情報をサーバーから取得する関数（fetchを使用）
+ * @param {string} studentID - 学生ID
+ * @returns {void}
+ */  
 function getStudentInfo(studentID) {
     fetch(`/studentInfo`, {
       method: 'POST',
@@ -254,15 +289,24 @@ function getStudentInfo(studentID) {
     })
     .then(response => response.json())
     .then(data => {
-      // 取得したJSONデータを使って何かしらの処理を行う
-      console.log(data); // 例: データをコンソールに表示する
-      // ここに取得したデータを利用するコードを追加
+      console.log("学生情報取得成功:", data);
+      // 取得したデータで画面を更新
       fillStudentInfo(data);
     })
-    .catch(error => console.error('エラー:', error));
+    .catch(error => console.error('学生情報取得エラー:', error));
   }
   
 
+/**
+ * 取得した学生情報でページの内容を更新する関数
+ * @param {Object} jsonData - 学生情報のJSONデータ
+ * @param {string} jsonData.name - 学生名
+ * @param {string} jsonData.studentID - 学生ID
+ * @param {string} jsonData.type - 保育形態
+ * @param {number} jsonData.lateCount - 遅刻回数
+ * @param {number} jsonData.earlyCount - 早退回数
+ * @returns {void}
+ */
 function fillStudentInfo(jsonData) {
     const container = document.querySelector('.container');
     container.innerHTML = `
@@ -273,5 +317,5 @@ function fillStudentInfo(jsonData) {
       <p class="student-info">早退回数：${jsonData.earlyCount}</p>
       <p class="student-info">お迎え遅れ：${jsonData.latePickUpCount}</p>
     `;
-  }
+}
   

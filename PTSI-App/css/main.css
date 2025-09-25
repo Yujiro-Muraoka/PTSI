@@ -22,28 +22,25 @@
     font-weight: 800;
 }
 
-/* html {
-    font-size: 62.5%;
-    font-family: 'Shippori', 'Robboto', sans-serif;
-} */
-
+/* ベースフォント設定 - 1rem = 10px で計算しやすくする */
 html {
     font-size: 62.5%;
     font-family: 'Kosugi', 'Robboto', sans-serif;
 }
 
+/* ページ全体のレイアウト設定 */
 body {
     background-color: #fff;
     margin: 1.5rem;
-    /* レスポンシブ対応：最小幅を削除 */
-    /* min-width: 1100px; */
 }
 
+/* 基本テキストスタイル */
 p {
     color: #fff;
     font-size: 1.8rem;
 }
 
+/* アプリケーションヘッダー - タイトルとナビゲーションを含む */
 .top-box {
     background-color: #52a8da;
     border-radius: 1.2rem;
@@ -55,6 +52,7 @@ p {
     justify-content: space-between;
 }
 
+/* ヘッダー内のタイトルテキスト */
 .top-box p {
     font-size: 2.4rem;
     font-weight: bold;
