@@ -47,6 +47,9 @@ app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
 app.use('/login', express.static(path.join(__dirname, 'login')));
 app.use('/reservation', express.static(path.join(__dirname, 'reservation')));
 app.use('/chat', express.static(path.join(__dirname, 'chat')));
+app.use('/admin-login', express.static(path.join(__dirname, 'admin-login')));
+app.use('/admin-dashboard', express.static(path.join(__dirname, 'admin-dashboard')));
+
 // 各ディレクトリ内の唯一のHTMLファイルを直接開く
 app.get('/chart', (req, res) => {
   res.sendFile(path.join(__dirname, 'chart', 'index.html'));
@@ -66,6 +69,14 @@ app.get('/reservation', (req, res) => {
 
 app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, 'chat', 'chat.html'));
+});
+
+app.get('/admin-login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-login', 'admin-login.html'));
+});
+
+app.get('/admin-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-dashboard', 'admin-dashboard.html'));
 });
 
 // ルートパスへのアクセス時に/loginにリダイレクトする
@@ -212,8 +223,47 @@ app.post('/passwordAuthentication', (req, res) => {
   });
 });
 
+/**
+ * 管理者認証API
+ * 管理者IDとパスワードを照合してログイン認証を行う
+ */
+app.post('/adminAuthentication', (req, res) => {
+  const { adminId, password } = req.body;
+  
+  // 入力値の検証
+  if (!adminId || !password) {
+    return res.status(400).json({ success: false, message: '管理者IDとパスワードを入力してください。' });
+  }
+  
+  console.log(`Admin login attempt for adminId: ${adminId}`);
 
+  // admin-login.csvからデータを読み込む
+  const adminLoginPath = path.join(__dirname, 'DB', 'admin-login.csv');
+  fs.readFile(adminLoginPath, 'utf8', (err, data) => {
+      if (err) {
+          console.error('管理者ログインファイル読み込みエラー:', err);
+          return res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+      }
 
+      const rows = data.split('\n').map(row => row.split(','));
+      const admin = rows.slice(1).find(row => row[0] === adminId && row[1].trim() === password);
+
+      if (admin) {
+          const adminData = {
+              id: admin[0],
+              name: admin[2],
+              role: admin[3]
+          };
+          res.json({ 
+              success: true, 
+              adminName: adminData.name,
+              adminRole: adminData.role
+          });
+      } else {
+          res.status(401).json({ success: false, message: '管理者IDまたはパスワードが正しくありません。' });
+      }
+  });
+});
 
 // チャット機能のためのメッセージ保存
 let chatMessages = {
@@ -374,6 +424,187 @@ app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).send('サーバーエラーが発生しました。');
 });
+
+// 管理者ダッシュボード用API群
+
+/**
+ * 管理者ダッシュボード統計情報API
+ */
+app.get('/admin/stats', (req, res) => {
+  try {
+    // 今日の日付を取得
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 予約データを読み込み
+    const reservationPath = path.join(__dirname, 'DB', 'reservation.csv');
+    const studentInfoPath = path.join(__dirname, 'DB', 'student-info.csv');
+    
+    let todayReservations = 0;
+    let totalReservations = 0;
+    let totalStudents = 0;
+    
+    // 予約データ統計
+    if (fs.existsSync(reservationPath)) {
+      const reservationData = fs.readFileSync(reservationPath, 'utf8');
+      const reservationRows = reservationData.split('\n').filter(row => row.trim());
+      
+      totalReservations = Math.max(0, reservationRows.length - 1); // ヘッダー行を除く
+      
+      // 今日の予約数をカウント
+      todayReservations = reservationRows.slice(1).filter(row => {
+        const columns = row.split(',');
+        return columns[1] === today;
+      }).length;
+    }
+    
+    // 学生数統計
+    if (fs.existsSync(studentInfoPath)) {
+      const studentData = fs.readFileSync(studentInfoPath, 'utf8');
+      const studentRows = studentData.split('\n').filter(row => row.trim());
+      totalStudents = Math.max(0, studentRows.length - 1); // ヘッダー行を除く
+    }
+    
+    res.json({
+      todayReservations,
+      totalReservations,
+      totalStudents
+    });
+  } catch (error) {
+    console.error('統計データ取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * 管理者ダッシュボード最近の活動API
+ */
+app.get('/admin/recent-activities', (req, res) => {
+  try {
+    const activities = [];
+    
+    // 予約データから最近の活動を取得
+    const reservationPath = path.join(__dirname, 'DB', 'reservation.csv');
+    if (fs.existsSync(reservationPath)) {
+      const reservationData = fs.readFileSync(reservationPath, 'utf8');
+      const reservationRows = reservationData.split('\n').filter(row => row.trim()).slice(1);
+      
+      // 最新5件の予約を取得
+      const recentReservations = reservationRows.slice(-5).reverse();
+      
+      recentReservations.forEach(row => {
+        const [studentId, date, type] = row.split(',');
+        const typeLabel = getAdminTypeLabel(type);
+        activities.push({
+          text: `学生ID ${studentId} が ${typeLabel} を申請しました`,
+          time: date
+        });
+      });
+    }
+    
+    res.json({ activities });
+  } catch (error) {
+    console.error('最近の活動データ取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * 管理者ダッシュボード予約一覧API
+ */
+app.get('/admin/reservations', (req, res) => {
+  try {
+    const reservations = [];
+    
+    const reservationPath = path.join(__dirname, 'DB', 'reservation.csv');
+    const studentInfoPath = path.join(__dirname, 'DB', 'student-info.csv');
+    
+    if (!fs.existsSync(reservationPath)) {
+      return res.json({ reservations: [] });
+    }
+    
+    // 学生情報を読み込み
+    const studentMap = new Map();
+    if (fs.existsSync(studentInfoPath)) {
+      const studentData = fs.readFileSync(studentInfoPath, 'utf8');
+      const studentRows = studentData.split('\n').filter(row => row.trim()).slice(1);
+      
+      studentRows.forEach(row => {
+        const [id, name] = row.split(',');
+        studentMap.set(id, name);
+      });
+    }
+    
+    // 予約データを読み込み
+    const reservationData = fs.readFileSync(reservationPath, 'utf8');
+    const reservationRows = reservationData.split('\n').filter(row => row.trim()).slice(1);
+    
+    reservationRows.forEach(row => {
+      const [studentId, date, type] = row.split(',');
+      reservations.push({
+        studentId,
+        studentName: studentMap.get(studentId) || '不明',
+        date,
+        type
+      });
+    });
+    
+    // 日付順にソート（新しい順）
+    reservations.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    res.json({ reservations });
+  } catch (error) {
+    console.error('予約データ取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * 管理者ダッシュボード学生一覧API
+ */
+app.get('/admin/students', (req, res) => {
+  try {
+    const students = [];
+    
+    const studentInfoPath = path.join(__dirname, 'DB', 'student-info.csv');
+    
+    if (!fs.existsSync(studentInfoPath)) {
+      return res.json({ students: [] });
+    }
+    
+    const studentData = fs.readFileSync(studentInfoPath, 'utf8');
+    const studentRows = studentData.split('\n').filter(row => row.trim()).slice(1);
+    
+    studentRows.forEach(row => {
+      const [studentId, name, type, lateCount, earlyCount, latePickUpCount] = row.split(',');
+      students.push({
+        studentId,
+        name,
+        type,
+        lateCount: parseInt(lateCount) || 0,
+        earlyCount: parseInt(earlyCount) || 0,
+        latePickUpCount: parseInt(latePickUpCount) || 0
+      });
+    });
+    
+    res.json({ students });
+  } catch (error) {
+    console.error('学生データ取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * 予約種類からラベルを取得するヘルパー関数
+ * @param {string} type - 予約種類
+ * @returns {string} ラベル文字列
+ */
+function getAdminTypeLabel(type) {
+  if (type.startsWith('type1')) return '遅刻申請';
+  if (type.startsWith('type2')) return '早退申請';
+  if (type.startsWith('type3')) return '欠席申請';
+  if (type.startsWith('type4')) return '延長保育';
+  return type;
+}
 
 // 404エラーハンドリング
 app.use((req, res) => {

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ダッシュボード - PTSI</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">PTSI - 管理者ダッシュボード</h1>
+        <div class="admin-info">
+            <span id="current-admin">管理者: 読み込み中...</span>
+            <button class="logout-button" onclick="adminLogout()">ログアウト</button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- サイドバー -->
+        <div class="sidebar">
+            <div class="menu-section">
+                <h3>📊 メニュー</h3>
+                <ul class="menu-list">
+                    <li><a href="#overview" onclick="showSection('overview')" class="menu-item active">概要</a></li>
+                    <li><a href="#reservations" onclick="showSection('reservations')" class="menu-item">予約管理</a></li>
+                    <li><a href="#students" onclick="showSection('students')" class="menu-item">学生情報</a></li>
+                    <li><a href="#chat" class="menu-item" onclick="goToChat()">チャット</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- 概要セクション -->
+            <div id="overview-section" class="content-section active">
+                <h2>📈 システム概要</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>今日の予約</h3>
+                        <div class="stat-number" id="today-reservations">-</div>
+                        <p>件の申請</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>登録学生数</h3>
+                        <div class="stat-number" id="total-students">-</div>
+                        <p>名</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>総予約数</h3>
+                        <div class="stat-number" id="total-reservations">-</div>
+                        <p>件</p>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>📋 最近の活動</h3>
+                    <div id="recent-activities" class="activity-list">
+                        <p>データを読み込み中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 予約管理セクション -->
+            <div id="reservations-section" class="content-section">
+                <h2>📅 予約管理</h2>
+                <div class="filter-controls">
+                    <input type="date" id="date-filter" onchange="filterReservations()">
+                    <select id="type-filter" onchange="filterReservations()">
+                        <option value="">全ての種類</option>
+                        <option value="type1">遅刻申請</option>
+                        <option value="type2">早退申請</option>
+                        <option value="type3">欠席申請</option>
+                        <option value="type4">延長保育</option>
+                    </select>
+                    <button onclick="exportReservations()" class="export-button">CSV出力</button>
+                </div>
+                <div id="reservations-table" class="data-table">
+                    <p>データを読み込み中...</p>
+                </div>
+            </div>
+
+            <!-- 学生情報セクション -->
+            <div id="students-section" class="content-section">
+                <h2>👥 学生情報管理</h2>
+                <div class="search-controls">
+                    <input type="text" id="student-search" placeholder="学生名またはIDで検索" onkeyup="searchStudents()">
+                    <button onclick="refreshStudents()" class="refresh-button">更新</button>
+                </div>
+                <div id="students-table" class="data-table">
+                    <p>データを読み込み中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

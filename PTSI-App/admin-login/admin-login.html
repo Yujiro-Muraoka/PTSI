@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ログイン - PTSI</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="admin-login.css">
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">PTSI - 管理者ログイン</h1>
+    </div>
+
+    <div class="login-container">
+        <div class="login-form">
+            <h2 class="login-title">園職員専用ログイン</h2>
+            <div class="white-container">
+                <div class="input-group">
+                    <label for="adminId">管理者ID:</label>
+                    <input type="text" id="adminId" name="adminId" placeholder="admin001">
+                </div>
+                <div class="input-group">
+                    <label for="password">パスワード:</label>
+                    <input type="password" id="password" name="password" placeholder="パスワードを入力">
+                </div>
+                <button class="login-button" onclick="adminLogin()">ログイン</button>
+                <div id="error-message" class="error-message"></div>
+            </div>
+        </div>
+        
+        <div class="login-info">
+            <h3>💡 デモアカウント</h3>
+            <p><strong>管理者ID:</strong> admin001</p>
+            <p><strong>パスワード:</strong> admin123</p>
+            <br>
+            <div class="role-list">
+                <h4>📋 利用可能な管理者アカウント:</h4>
+                <ul>
+                    <li><strong>admin001</strong> - 園長先生</li>
+                    <li><strong>admin002</strong> - 主任保育士</li>
+                    <li><strong>admin003</strong> - ライオン組担任</li>
+                    <li><strong>admin004</strong> - ぞう組担任</li>
+                    <li><strong>admin005</strong> - ひよこ組担任</li>
+                    <li><strong>admin006</strong> - あひる組担任</li>
+                </ul>
+            </div>
+            <div class="navigation-links">
+                <a href="../login" class="nav-link">👪 保護者ログインはこちら</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-login.js"></script>
+</body>
+</html>

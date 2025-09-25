@@ -65,8 +65,33 @@ p {
     transition: ease-in-out 0.2s;
 }
 
+/* 管理者ログインリンク */
+.admin-link-container {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.admin-link {
+    display: inline-block;
+    padding: 1.5rem 2.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 1rem;
+    font-size: 1.6rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.admin-link:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
 /* レスポンシブデザイン対応 */
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
     .white-box {
         width: 90%;
         max-width: 400px;

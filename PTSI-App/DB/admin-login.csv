@@ -1,0 +1,7 @@
+admin-id,password,name,role
+admin001,admin123,園長先生,principal
+admin002,admin123,主任保育士,head_teacher
+admin003,admin123,ライオン組担任,teacher_lion
+admin004,admin123,ぞう組担任,teacher_elephant
+admin005,admin123,ひよこ組担任,teacher_chick
+admin006,admin123,あひる組担任,teacher_duck
