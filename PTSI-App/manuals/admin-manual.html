@@ -315,11 +315,40 @@
             font-size: 14px;
             margin-top: 5px;
         }
+
+        /* 印刷用ヘッダーのスタイル */
+        .print-header {
+            margin-bottom: 30px !important;
+        }
+
+        .print-header button {
+            transition: all 0.3s ease;
+        }
+
+        .print-header button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* 印刷時は印刷用ヘッダーを非表示 */
+        @media print {
+            .print-header {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <!-- 印刷用ヘッダー -->
+        <div class="print-header no-print" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+            <h2>🏫 PTSI幼稚園システム 運営者向け操作マニュアル</h2>
+            <p>このページを印刷してPDFで保存できます</p>
+            <button onclick="window.print()" style="background: white; color: #667eea; border: none; padding: 15px 30px; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin: 10px;">🖨️ 印刷・PDF保存</button>
+            <button onclick="window.close()" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 15px 30px; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin: 10px;">❌ 閉じる</button>
+        </div>
+
         <!-- ヘッダー -->
         <div class="header">
             <h1>🏫 PTSI幼稚園システム 運営者向け操作マニュアル</h1>

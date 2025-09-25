@@ -446,6 +446,16 @@ function downloadCSV(csv, filename) {
  * チャットページへ移動
  * @returns {void}
  */
+/**
+ * 保護者チャットページへ遷移
+ */
 function goToChat() {
     window.location.href = '/chat';
+}
+
+/**
+ * 職員チャットページへ遷移
+ */
+function goToStaffChat() {
+    window.location.href = '/staff-chat';
 }

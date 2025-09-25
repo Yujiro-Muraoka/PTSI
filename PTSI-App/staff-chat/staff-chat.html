@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>職員チャット - 登降園管理システム</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="staff-chat.css">
+</head>
+
+<body>
+    <div class="top-box">
+        <p class="app-title">登降園管理システム - 職員チャット</p>
+        <div class="logout-box">
+            <input type="button" class="nav-btn" value="管理画面" onclick="goToAdminDashboard()">
+            <input type="button" class="nav-btn" value="保護者チャット" onclick="goToParentChat()">
+            <input type="button" class="logout" value="Logout" onclick="logout()">
+        </div>
+    </div>
+
+    <div class="main-box">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2 id="chat-title">職員間グループチャット</h2>
+                <div class="user-info">
+                    <span id="current-user">職員: </span>
+                    <div class="chat-controls">
+                        <select id="chat-room" onchange="changeRoom()">
+                            <option value="staff-general">全職員チャット</option>
+                            <option value="staff-teachers">担任教師</option>
+                            <option value="staff-admin">管理職</option>
+                            <option value="staff-support">サポートスタッフ</option>
+                            <option value="staff-emergency">緊急連絡</option>
+                        </select>
+                        <button id="broadcast-btn" onclick="showBroadcastModal()">全職員へ緊急連絡</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- メッセージがここに表示されます -->
+            </div>
+
+            <div class="chat-input" id="chat-input-area">
+                <div class="input-group">
+                    <input type="text" id="message-input" placeholder="職員間メッセージを入力してください..." maxlength="300">
+                    <button type="button" id="send-button" onclick="sendMessage()">送信</button>
+                    <button type="button" id="urgent-button" onclick="sendUrgentMessage()" class="urgent-btn">緊急送信</button>
+                </div>
+                <div class="message-info">
+                    <span id="char-count">0/300</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 緊急連絡ブロードキャストモーダル -->
+    <div id="broadcast-modal" class="modal">
+        <div class="modal-content emergency-modal">
+            <div class="modal-header">
+                <h3>🚨 全職員への緊急連絡</h3>
+                <button class="close" onclick="closeBroadcastModal()" onkeydown="handleCloseKeydown(event, 'broadcast')" tabindex="0">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="emergency-warning">
+                    <p>⚠️ この機能は緊急時のみ使用してください</p>
+                    <p>全職員に即座に通知が送信されます</p>
+                </div>
+                <textarea id="broadcast-text" placeholder="緊急連絡内容を入力してください..." maxlength="500"></textarea>
+                <div class="modal-actions">
+                    <button onclick="sendBroadcast()" class="emergency-send-btn">🚨 緊急送信</button>
+                    <button onclick="closeBroadcastModal()" class="cancel-btn">キャンセル</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- オンライン職員表示モーダル -->
+    <div id="online-staff-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>オンライン職員</h3>
+                <button class="close" onclick="closeOnlineStaffModal()" onkeydown="handleCloseKeydown(event, 'online')" tabindex="0">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="online-staff-list" class="staff-list">
+                    <!-- オンライン職員リストがここに表示されます -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- オンライン職員数表示 -->
+    <div class="online-indicator" onclick="showOnlineStaffModal()" onkeydown="handleOnlineIndicatorKeydown(event)" tabindex="0" role="button" aria-label="オンライン職員を表示">
+        <span id="online-count">0</span> 名オンライン
+    </div>
+
+    <script src="staff-chat.js"></script>
+</body>
+
+</html>

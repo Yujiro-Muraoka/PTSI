@@ -16,7 +16,6 @@ const app = express();
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const puppeteer = require('puppeteer');
 
 // ミドルウェアの設定
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -275,17 +274,25 @@ let chatMessages = {
   class3: [],
   class4: [],
   announcements: [], // 運営からの一斉送信
-  direct: {} // ダイレクトメッセージ (userId_adminId形式)
+  direct: {}, // ダイレクトメッセージ (userId_adminId形式)
+  // 職員チャット用
+  'staff-general': [],
+  'staff-teachers': [],
+  'staff-admin': [],
+  'staff-support': [],
+  'staff-emergency': []
 };
 
 // 運営者リスト（実際のアプリケーションではデータベースから取得）
 const adminUsers = [
-  { id: 'admin001', name: '園長先生', role: 'principal' },
-  { id: 'admin002', name: '主任保育士', role: 'head_teacher' },
-  { id: 'admin003', name: 'ライオン組担任', role: 'teacher_lion' },
-  { id: 'admin004', name: 'ぞう組担任', role: 'teacher_elephant' },
-  { id: 'admin005', name: 'ひよこ組担任', role: 'teacher_chick' },
-  { id: 'admin006', name: 'あひる組担任', role: 'teacher_duck' }
+  { id: 'admin001', name: '園長先生', role: 'principal', department: '管理職' },
+  { id: 'admin002', name: '主任保育士', role: 'head_teacher', department: '管理職' },
+  { id: 'admin003', name: 'ライオン組担任', role: 'teacher_lion', department: '担任教師' },
+  { id: 'admin004', name: 'ぞう組担任', role: 'teacher_elephant', department: '担任教師' },
+  { id: 'admin005', name: 'ひよこ組担任', role: 'teacher_chick', department: '担任教師' },
+  { id: 'admin006', name: 'あひる組担任', role: 'teacher_duck', department: '担任教師' },
+  { id: 'admin007', name: '栄養士', role: 'nutritionist', department: 'サポートスタッフ' },
+  { id: 'admin008', name: '事務職員', role: 'office_staff', department: 'サポートスタッフ' }
 ];
 
 // チャットメッセージ送信API
@@ -387,6 +394,129 @@ app.get('/chat/admins', (req, res) => {
   res.json({ admins: adminUsers });
 });
 
+// 職員チャット用の静的ファイル配信
+app.use('/staff-chat', express.static(path.join(__dirname, 'staff-chat')));
+
+// 職員チャットページ
+app.get('/staff-chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'staff-chat', 'staff-chat.html'));
+});
+
+// 職員チャットメッセージ送信API
+app.post('/staff-chat/send', (req, res) => {
+  const { message, room, userId, userName, userRole, messageType, urgent } = req.body;
+  
+  if (!message || !userId || !userName || !room) {
+    return res.status(400).json({ success: false, message: '必要な情報が不足しています' });
+  }
+
+  const newMessage = {
+    id: Date.now(),
+    message: message,
+    userId: userId,
+    userName: userName,
+    userRole: userRole || '職員',
+    room: room,
+    messageType: messageType || 'staff',
+    urgent: urgent || false,
+    timestamp: new Date().toISOString()
+  };
+
+  // 職員チャットルームにメッセージを保存
+  if (!chatMessages[room]) {
+    chatMessages[room] = [];
+  }
+  
+  chatMessages[room].push(newMessage);
+  
+  // 最新の100件のみ保持
+  if (chatMessages[room].length > 100) {
+    chatMessages[room] = chatMessages[room].slice(-100);
+  }
+
+  console.log(`Staff chat message sent - Room: ${room}, User: ${userName}, Urgent: ${urgent}`);
+  res.json({ success: true, message: newMessage });
+});
+
+// 職員チャットメッセージ取得API
+app.get('/staff-chat/messages', (req, res) => {
+  const room = req.query.room;
+  
+  if (!room) {
+    return res.status(400).json({ success: false, message: 'ルーム名が指定されていません' });
+  }
+  
+  if (!chatMessages[room]) {
+    chatMessages[room] = [];
+  }
+
+  res.json({ success: true, messages: chatMessages[room] });
+});
+
+// 職員緊急連絡ブロードキャストAPI
+app.post('/staff-chat/broadcast', (req, res) => {
+  const { message, userId, userName, userRole, messageType } = req.body;
+  
+  if (!message || !userId || !userName) {
+    return res.status(400).json({ success: false, message: '必要な情報が不足しています' });
+  }
+
+  const broadcastMessage = {
+    id: Date.now(),
+    message: message,
+    userId: userId,
+    userName: userName,
+    userRole: userRole || '職員',
+    messageType: 'emergency',
+    urgent: true,
+    broadcast: true,
+    timestamp: new Date().toISOString()
+  };
+
+  // 全ての職員チャットルームに緊急メッセージを追加
+  const staffRooms = ['staff-general', 'staff-teachers', 'staff-admin', 'staff-support', 'staff-emergency'];
+  
+  staffRooms.forEach(room => {
+    if (!chatMessages[room]) {
+      chatMessages[room] = [];
+    }
+    chatMessages[room].push({...broadcastMessage, room: room});
+    
+    // 最新の100件のみ保持
+    if (chatMessages[room].length > 100) {
+      chatMessages[room] = chatMessages[room].slice(-100);
+    }
+  });
+
+  console.log(`Emergency broadcast sent by ${userName}: ${message}`);
+  res.json({ success: true, message: broadcastMessage });
+});
+
+// 管理者情報取得API（職員チャット用）
+app.post('/api/admin-info', (req, res) => {
+  const { adminId } = req.body;
+  
+  if (!adminId) {
+    return res.status(400).json({ success: false, message: '管理者IDが指定されていません' });
+  }
+
+  const admin = adminUsers.find(user => user.id === adminId);
+  
+  if (admin) {
+    res.json({ 
+      success: true, 
+      admin: {
+        id: admin.id,
+        name: admin.name,
+        role: admin.role,
+        department: admin.department
+      }
+    });
+  } else {
+    res.status(404).json({ success: false, message: '管理者が見つかりません' });
+  }
+});
+
 // チャットユーザー情報取得API
 app.post('/chat/user-info', (req, res) => {
   const studentID = req.body.studentID;
@@ -437,82 +567,96 @@ app.post('/chat/user-info', (req, res) => {
 });
 
 /**
- * PDF生成API - 保護者向けマニュアル
- * HTMLからPDFを生成してダウンロード提供
+ * 保護者向けマニュアルHTML提供API
+ * ブラウザの印刷機能でPDF生成できるHTMLを提供
  */
-app.get('/download/parent-manual', async (req, res) => {
+app.get('/download/parent-manual', (req, res) => {
+  console.log('保護者向けマニュアルHTMLリクエストを受信');
   try {
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    
-    const page = await browser.newPage();
     const htmlPath = path.join(__dirname, 'manuals', 'parent-manual.html');
-    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
     
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    if (!fs.existsSync(htmlPath)) {
+      return res.status(404).send('マニュアルファイルが見つかりません。');
+    }
     
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '20mm',
-        bottom: '20mm',
-        left: '15mm',
-        right: '15mm'
+    let htmlContent = fs.readFileSync(htmlPath, 'utf8');
+    
+    // 印刷用のスタイルを追加
+    const printStyles = `
+    <style>
+      @media print {
+        body { margin: 0; }
+        .no-print { display: none !important; }
+        .container { box-shadow: none !important; }
+        .page-break { page-break-before: always; }
       }
-    });
+    </style>
+    <script>
+      window.onload = function() {
+        // 印刷ダイアログを自動表示（オプション）
+        if (window.location.search.includes('print=auto')) {
+          setTimeout(() => window.print(), 1000);
+        }
+      }
+    </script>`;
     
-    await browser.close();
+    // </head>タグの前に印刷用スタイルを挿入
+    htmlContent = htmlContent.replace('</head>', printStyles + '</head>');
     
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="PTSI幼稚園システム_保護者向け操作マニュアル.pdf"');
-    res.send(pdf);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(htmlContent);
+    console.log('保護者向けマニュアルHTML送信完了');
     
   } catch (error) {
-    console.error('PDF生成エラー:', error);
-    res.status(500).send('PDFの生成に失敗しました。');
+    console.error('マニュアル提供エラー:', error);
+    res.status(500).send('マニュアルの読み込みに失敗しました。');
   }
 });
 
 /**
- * PDF生成API - 運営者向けマニュアル
- * HTMLからPDFを生成してダウンロード提供
+ * 運営者向けマニュアルHTML提供API
+ * ブラウザの印刷機能でPDF生成できるHTMLを提供
  */
-app.get('/download/admin-manual', async (req, res) => {
+app.get('/download/admin-manual', (req, res) => {
+  console.log('運営者向けマニュアルHTMLリクエストを受信');
   try {
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    
-    const page = await browser.newPage();
     const htmlPath = path.join(__dirname, 'manuals', 'admin-manual.html');
-    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
     
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    if (!fs.existsSync(htmlPath)) {
+      return res.status(404).send('マニュアルファイルが見つかりません。');
+    }
     
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '20mm',
-        bottom: '20mm',
-        left: '15mm',
-        right: '15mm'
+    let htmlContent = fs.readFileSync(htmlPath, 'utf8');
+    
+    // 印刷用のスタイルを追加
+    const printStyles = `
+    <style>
+      @media print {
+        body { margin: 0; }
+        .no-print { display: none !important; }
+        .container { box-shadow: none !important; }
+        .page-break { page-break-before: always; }
       }
-    });
+    </style>
+    <script>
+      window.onload = function() {
+        // 印刷ダイアログを自動表示（オプション）
+        if (window.location.search.includes('print=auto')) {
+          setTimeout(() => window.print(), 1000);
+        }
+      }
+    </script>`;
     
-    await browser.close();
+    // </head>タグの前に印刷用スタイルを挿入
+    htmlContent = htmlContent.replace('</head>', printStyles + '</head>');
     
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="PTSI幼稚園システム_運営者向け操作マニュアル.pdf"');
-    res.send(pdf);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(htmlContent);
+    console.log('運営者向けマニュアルHTML送信完了');
     
   } catch (error) {
-    console.error('PDF生成エラー:', error);
-    res.status(500).send('PDFの生成に失敗しました。');
+    console.error('マニュアル提供エラー:', error);
+    res.status(500).send('マニュアルの読み込みに失敗しました。');
   }
 });
 
