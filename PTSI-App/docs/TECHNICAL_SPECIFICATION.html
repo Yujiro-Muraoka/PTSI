@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTSIアプリケーション 技術仕様書</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Meiryo UI', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #34495e;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .api-endpoint {
+            background-color: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .system-architecture {
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .feature-box {
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        
+        .directory-tree {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            border-radius: 4px;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        code {
+            background-color: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        @media print {
+            body {
+                margin: 0;
+                padding: 15px;
+                font-size: 12pt;
+            }
+            
+            h1 {
+                font-size: 20pt;
+                page-break-after: avoid;
+            }
+            
+            h2 {
+                font-size: 16pt;
+                page-break-after: avoid;
+            }
+            
+            h3 {
+                font-size: 14pt;
+                page-break-after: avoid;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>PTSIアプリケーション 技術仕様書</h1>
+    
+    <div class="highlight">
+        <strong>ドキュメント情報</strong><br>
+        作成日: 2025年9月25日<br>
+        バージョン: 1.0.0<br>
+        作成者: GitHub Copilot<br>
+        対象システム: PTSI (Preschool Transportation System Interface)
+    </div>
+
+    <div class="toc">
+        <h2>目次</h2>
+        <ul>
+            <li><a href="#system-overview">1. システム概要</a></li>
+            <li><a href="#tech-stack">2. 技術スタック</a></li>
+            <li><a href="#system-requirements">3. システム要件</a></li>
+            <li><a href="#architecture">4. アーキテクチャ</a></li>
+            <li><a href="#features">5. 機能仕様</a></li>
+            <li><a href="#api-spec">6. API仕様</a></li>
+            <li><a href="#database">7. データベース設計</a></li>
+            <li><a href="#file-structure">8. ファイル構成</a></li>
+            <li><a href="#security">9. セキュリティ</a></li>
+            <li><a href="#deployment">10. デプロイメント</a></li>
+            <li><a href="#maintenance">11. 運用・保守</a></li>
+        </ul>
+    </div>
+
+    <h2 id="system-overview">1. システム概要</h2>
+    
+    <h3>プロジェクト名</h3>
+    <p><strong>PTSI (Preschool Transportation System Interface)</strong><br>
+    近畿大学付属幼稚園 登降園管理システム</p>
+
+    <h3>目的</h3>
+    <p>幼稚園・保育園向けの登降園管理Webアプリケーションとして、保護者と園側の効率的なコミュニケーションと各種申請手続きを支援する。</p>
+
+    <h3>対象ユーザー</h3>
+    <ul>
+        <li><strong>主要ユーザー</strong>: 保護者</li>
+        <li><strong>管理ユーザー</strong>: 園職員（園長、主任保育士、担任教諭）</li>
+    </ul>
+
+    <h3>開発者</h3>
+    <p>Yujiro Muraoka</p>
+
+    <div class="page-break"></div>
+    <h2 id="tech-stack">2. 技術スタック</h2>
+
+    <h3>Backend</h3>
+    <ul>
+        <li><strong>Runtime</strong>: Node.js (v14以上推奨)</li>
+        <li><strong>Framework</strong>: Express.js v4.18.2</li>
+        <li><strong>Body Parser</strong>: body-parser v1.20.2</li>
+        <li><strong>リアルタイム通信</strong>: Socket.IO v4.7.2 (予定)</li>
+    </ul>
+
+    <h3>Frontend</h3>
+    <ul>
+        <li><strong>HTML</strong>: HTML5</li>
+        <li><strong>CSS</strong>: CSS3 (カスタムCSS、Flexbox、Grid使用)</li>
+        <li><strong>JavaScript</strong>: Vanilla JavaScript (ES6+)</li>
+        <li><strong>データ可視化</strong>: Chart.js v2.1.4</li>
+    </ul>
+
+    <h3>データベース</h3>
+    <ul>
+        <li><strong>形式</strong>: CSVファイルシステム</li>
+        <li><strong>ファイル操作</strong>: Node.js fs モジュール</li>
+    </ul>
+
+    <h2 id="system-requirements">3. システム要件</h2>
+
+    <h3>動作環境</h3>
+    <ul>
+        <li><strong>OS</strong>: macOS, Windows, Linux</li>
+        <li><strong>ブラウザ</strong>: Chrome, Firefox, Safari, Edge (最新版)</li>
+        <li><strong>Node.js</strong>: v14.0.0以上</li>
+        <li><strong>ポート</strong>: 3000 (デフォルト)</li>
+    </ul>
+
+    <h3>パフォーマンス要件</h3>
+    <ul>
+        <li><strong>レスポンス時間</strong>: 2秒以内</li>
+        <li><strong>セッション保持</strong>: 1時間</li>
+        <li><strong>ファイルサイズ制限</strong>: 10MB</li>
+    </ul>
+
+    <h2 id="architecture">4. アーキテクチャ</h2>
+
+    <div class="system-architecture">
+        <h3>システム構成図</h3>
+        <div class="code-block">
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend      │    │   Database      │
+│   (Browser)     │◄──►│   (Node.js)     │◄──►│   (CSV Files)   │
+│                 │    │   Express.js    │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+        </div>
+    </div>
+
+    <h2 id="features">5. 機能仕様</h2>
+
+    <div class="feature-box">
+        <h3>1. 認証システム (Login)</h3>
+        <h4>機能概要</h4>
+        <ul>
+            <li>学生IDとパスワードによる認証</li>
+            <li>セッション管理（Cookie使用、1時間有効）</li>
+            <li>入力値検証</li>
+        </ul>
+        
+        <h4>実装詳細</h4>
+        <ul>
+            <li><strong>認証方式</strong>: CSVファイルベース認証</li>
+            <li><strong>セッション</strong>: HTTP Cookie (<code>studentID</code>)</li>
+            <li><strong>バリデーション</strong>: 空値チェック、改行文字除去</li>
+        </ul>
+    </div>
+
+    <div class="feature-box">
+        <h3>2. 予約申請システム (Reservation)</h3>
+        <h4>機能概要</h4>
+        <p>4種類の申請タイプ</p>
+        <ol>
+            <li><strong>遅刻申請</strong>: 時間帯選択 (10:00-15:00)</li>
+            <li><strong>早退申請</strong>: 時間帯選択 (10:00-15:00)</li>
+            <li><strong>預かり保育予約</strong>: 料金別プラン (￥800-￥2,100)</li>
+            <li><strong>延長保育予約</strong>: 料金別プラン (￥300-￥800)</li>
+        </ol>
+
+        <h4>バリデーション</h4>
+        <ul>
+            <li>ログイン状態確認</li>
+            <li>日付選択必須</li>
+            <li>過去日付選択防止</li>
+            <li>申請タイプ選択必須</li>
+        </ul>
+    </div>
+
+    <div class="feature-box">
+        <h3>3. チャットシステム (Chat)</h3>
+        <h4>機能概要</h4>
+        <ul>
+            <li><strong>ルームベースチャット</strong>: 
+                <ul>
+                    <li>全体チャット</li>
+                    <li>クラス別チャット (4クラス)</li>
+                    <li>園からのお知らせ</li>
+                </ul>
+            </li>
+            <li><strong>ダイレクトメッセージ</strong>: 先生との個別連絡</li>
+            <li><strong>リアルタイム更新</strong>: 5秒間隔でメッセージ更新</li>
+        </ul>
+    </div>
+
+    <div class="page-break"></div>
+    <h2 id="api-spec">6. API仕様</h2>
+
+    <div class="api-endpoint">
+        <h3>POST /passwordAuthentication</h3>
+        <h4>認証API</h4>
+        <div class="code-block">
+// Request
+{
+  "studentId": "22001",
+  "password": "22001" 
+}
+
+// Response (Success)
+{
+  "success": true
+}
+
+// Response (Error)
+{
+  "success": false,
+  "message": "パスワードが正しくありません。"
+}
+        </div>
+    </div>
+
+    <div class="api-endpoint">
+        <h3>POST /studentInfo</h3>
+        <h4>学生情報取得API</h4>
+        <div class="code-block">
+// Request
+{
+  "studentID": "22001"
+}
+
+// Response
+{
+  "name": "中田和輝",
+  "studentID": "22001", 
+  "type": "一般",
+  "lateCount": "3",
+  "earlyCount": "1",
+  "latePickUpCount": "1"
+}
+        </div>
+    </div>
+
+    <div class="api-endpoint">
+        <h3>POST /submit</h3>
+        <h4>予約申請API</h4>
+        <div class="code-block">
+// Request
+{
+  "studentID": "22001",
+  "date": "2025-12-25",
+  "type": "type1-12to13"
+}
+
+// Response
+"データが正常に送信されました。"
+        </div>
+    </div>
+
+    <h2 id="database">7. データベース設計</h2>
+
+    <h3>1. login.csv</h3>
+    <div class="code-block">
+student-id,password
+22001,22001
+22002,22002
+...
+    </div>
+
+    <h3>2. student-info.csv</h3>
+    <div class="code-block">
+student-id,name,type,late,early,late-pick-up
+22001,中田和輝,一般,3,1,1
+22002,丸山晴久,一般,3,1,2
+...
+    </div>
+
+    <p><strong>フィールド説明</strong>:</p>
+    <ul>
+        <li><code>student-id</code>: 学生ID（主キー）</li>
+        <li><code>name</code>: 学生氏名</li>
+        <li><code>type</code>: 保育形態（一般/短時間児）</li>
+        <li><code>late</code>: 遅刻回数</li>
+        <li><code>early</code>: 早退回数</li>
+        <li><code>late-pick-up</code>: お迎え遅れ回数</li>
+    </ul>
+
+    <h3>3. reservation.csv</h3>
+    <div class="code-block">
+22001,2025-12-25,type1-12to13
+22002,2025-12-26,type3-4
+...
+    </div>
+
+    <h2 id="file-structure">8. ファイル構成</h2>
+
+    <div class="directory-tree">
+PTSI-App/
+├── server.js              # メインサーバーファイル
+├── package.json            # 依存関係とスクリプト設定
+├── .gitignore             # Git除外設定
+├── chart/                 # データ可視化機能
+│   ├── index.html
+│   ├── script.js
+│   ├── styles.css
+│   └── data.csv
+├── chat/                  # チャット機能
+│   ├── chat.html
+│   ├── chat.js
+│   └── chat.css
+├── check-resrvation/      # 予約確認機能
+│   ├── check-resrvation.html
+│   └── check-resrvation.css
+├── css/                   # 共通スタイル
+│   ├── main.css
+│   └── reset.css
+├── DB/                    # CSVデータベース
+│   ├── login.csv
+│   ├── student-info.csv
+│   └── reservation.csv
+├── fonts/                 # フォントファイル
+│   ├── KosugiMaru-Regular.ttf
+│   └── ShipporiMincho-*.ttf
+├── login/                 # ログイン機能
+│   ├── login.html
+│   ├── login.js
+│   └── login.css
+└── reservation/           # 予約申請機能
+    ├── reservation.html
+    ├── reservation.js
+    └── reservation.css
+    </div>
+
+    <h2 id="security">9. セキュリティ</h2>
+
+    <h3>実装済みセキュリティ対策</h3>
+
+    <h4>HTTPセキュリティヘッダー</h4>
+    <div class="code-block">
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  next();
+});
+    </div>
+
+    <div class="warning">
+        <h4>セキュリティ上の注意点</h4>
+        <ol>
+            <li><strong>パスワード</strong>: 平文保存（改善が必要）</li>
+            <li><strong>HTTPS</strong>: 本番環境では必須</li>
+            <li><strong>CSRF対策</strong>: 現在未実装</li>
+            <li><strong>ファイルアクセス</strong>: 直接アクセス制限が必要</li>
+        </ol>
+    </div>
+
+    <h2 id="deployment">10. デプロイメント</h2>
+
+    <h3>開発環境</h3>
+    <div class="code-block">
+# プロジェクトのクローン
+git clone &lt;repository-url&gt;
+cd PTSI-App
+
+# 依存関係のインストール
+npm install
+
+# 開発サーバー起動
+npm start
+    </div>
+
+    <h3>本番環境</h3>
+    <div class="code-block">
+# Node.js環境の準備
+node --version  # v14以上確認
+
+# プロジェクトの配置
+cp -r PTSI-App /var/www/
+
+# 依存関係のインストール
+cd /var/www/PTSI-App
+npm install --production
+
+# サーバー起動
+npm start
+
+# プロセス管理 (PM2推奨)
+npm install -g pm2
+pm2 start server.js --name "ptsi-app"
+    </div>
+
+    <h2 id="maintenance">11. 運用・保守</h2>
+
+    <h3>ログ管理</h3>
+    <ul>
+        <li><strong>アクセスログ</strong>: Express標準出力</li>
+        <li><strong>エラーログ</strong>: console.error()</li>
+        <li><strong>チャットログ</strong>: メモリ内保存</li>
+    </ul>
+
+    <h3>バックアップ</h3>
+    <div class="code-block">
+# CSVファイルのバックアップ
+tar -czf backup_$(date +%Y%m%d).tar.gz DB/
+    </div>
+
+    <h3>既知の制限事項</h3>
+    <ol>
+        <li><strong>データベース</strong>: CSVファイルのため同時書き込み制限</li>
+        <li><strong>スケーラビリティ</strong>: シングルサーバー構成</li>
+        <li><strong>リアルタイム通信</strong>: 完全なWebSocket未実装</li>
+    </ol>
+
+    <div class="highlight">
+        <h3>デモアカウント</h3>
+        <ul>
+            <li><strong>学生ID</strong>: 22001</li>
+            <li><strong>パスワード</strong>: 22001</li>
+            <li><strong>対応学生</strong>: 中田和輝</li>
+        </ul>
+    </div>
+
+    <h3>改訂履歴</h3>
+    <table>
+        <tr>
+            <th>バージョン</th>
+            <th>日付</th>
+            <th>変更内容</th>
+            <th>作成者</th>
+        </tr>
+        <tr>
+            <td>1.0.0</td>
+            <td>2025-09-25</td>
+            <td>初版作成</td>
+            <td>Yujiro Muraoka</td>
+        </tr>
+    </table>
+
+    <div class="highlight">
+        <p><strong>注意事項</strong></p>
+        <p>この技術仕様書は、PTSIアプリケーションの技術的な詳細を記載したものです。<br>
+        運用時は定期的な更新とセキュリティレビューを実施してください。<br>
+        <strong>作成者: Yujiro Muraoka</strong></p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "ptsi-app",
+  "version": "1.0.0",
+  "description": "Preschool Transportation System Interface - 幼稚園出欠・遅刻早退管理システム",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "node server.js",
+    "watch": "nodemon server.js",
+    "lint": "echo \"No linting configured\"",
+    "check": "node -c server.js",
+    "validate": "node -c server.js && echo 'Server syntax is valid'",
+    "docs": "node docs/generate-docs.js",
+    "docs:open": "open docs/TECHNICAL_SPECIFICATION.html",
+    "docs:pdf": "node docs/generate-pdf.js"
+  },
+  "keywords": [],
+  "author": "Yujiro Muraoka",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "puppeteer": "^24.22.3"
+  }
+}

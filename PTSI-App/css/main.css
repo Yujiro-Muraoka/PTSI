@@ -66,17 +66,33 @@ p {
 .logout-box {
     border: 2px solid #fff;
     height: 70%;
-    width: 8rem;
+    min-width: 8rem;
     border-radius: 1.2rem;
     margin-right: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
+    padding: 0 0.5rem;
 }
 
-.logout {
+.logout, .chat-btn {
     color: white;
-    font-size: 2rem;
+    font-size: 1.6rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.chat-btn {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.chat-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .logout-box:hover {

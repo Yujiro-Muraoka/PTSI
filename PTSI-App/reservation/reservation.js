@@ -15,6 +15,11 @@ window.onload = function() {
 
     }
 }
+
+// チャットページへの移動
+function goToChat() {
+    window.location.href = "/chat";
+}
   
 function getCookie(name) {
     var decodedCookie = decodeURIComponent(document.cookie);
@@ -101,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
                          `;
                     break;
                 case 'type3':
-                    newRadioContainer.innerHTML += 
+                    newRadioContainer.innerHTML = 
                         `
                         <p>３：預かり保育予約</p>
                         <label class="Radio">
@@ -118,9 +123,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         </label>
                         <label class="Radio">
                             <input name="radio" class="Radio-Input" type="radio" value="type3-4">
-                            <span class="Radio-Text">17時まで（￥2,1000円）</span>
+                            <span class="Radio-Text">17時まで（￥2,100円）</span>
                         </label>
-                        `
+                        `;
                     break;
                 case 'type4':
                     newRadioContainer.innerHTML =
@@ -180,17 +185,46 @@ function logout() {
 
 
 function sendData() {
-    // var studentID = document.getElementById("student-id").innerHTML;
     var studentID = getCookie("studentID");
-    var date = document.getElementById("date").value;
-    var type = document.querySelector('input[name="radio"]:checked').value;
+    var dateElement = document.getElementById("date");
+    var checkedRadio = document.querySelector('input[name="radio"]:checked');
 
-    console.log(studentID+ " " + date + " " + type)
+    // バリデーションチェック
+    if (!studentID) {
+        alert("ログイン情報が見つかりません。再ログインしてください。");
+        location.href = "../login";
+        return;
+    }
+
+    if (!dateElement || !dateElement.value) {
+        alert("日付を選択してください。");
+        return;
+    }
+
+    // 日付が過去でないかチェック
+    var selectedDate = new Date(dateElement.value);
+    var today = new Date();
+    today.setHours(0, 0, 0, 0); // 時刻をリセット
+    
+    if (selectedDate < today) {
+        alert("過去の日付は選択できません。");
+        return;
+    }
+
+    if (!checkedRadio) {
+        alert("申請種類を選択してください。");
+        return;
+    }
+
+    var date = dateElement.value;
+    var type = checkedRadio.value;
+
+    console.log(studentID + " " + date + " " + type);
 
     var data = {
-        studentID : studentID,
-        date : date,
-        type : type
+        studentID: studentID,
+        date: date,
+        type: type
     };
 
     // JSONデータをPOSTリクエストで送信
