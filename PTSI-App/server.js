@@ -400,14 +400,29 @@ app.post('/chat/user-info', (req, res) => {
     let studentData = null;
 
     for (let i = 1; i < lines.length; i++) {
-      const [id, name, type, late, early, latePickUp] = lines[i].split(',');
-      if (id === studentID) {
-        studentData = {
-          id: id,
-          name: name.trim(),
-          type: type
-        };
-        break;
+      const columns = lines[i].split(',');
+      if (columns.length >= 7) { // クラス情報を含む新しい形式
+        const [id, name, type, late, early, latePickUp, studentClass] = columns;
+        if (id === studentID) {
+          studentData = {
+            id: id,
+            name: name.trim(),
+            type: type,
+            class: (studentClass || '').trim()
+          };
+          break;
+        }
+      } else if (columns.length >= 6) { // 旧形式（クラス情報なし）
+        const [id, name, type, late, early, latePickUp] = columns;
+        if (id === studentID) {
+          studentData = {
+            id: id,
+            name: name.trim(),
+            type: type,
+            class: '' // クラス情報がない場合は空文字
+          };
+          break;
+        }
       }
     }
 

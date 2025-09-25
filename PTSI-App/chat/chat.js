@@ -177,8 +177,10 @@ class ChatApp {
                 messageInput.value = '';
                 this.updateCharCount();
                 
-                // メッセージを再読み込み
-                this.loadMessages();
+                // メッセージを再読み込み（重複を防ぐため、少し遅延させる）
+                setTimeout(() => {
+                    this.loadMessages();
+                }, 100);
             } else {
                 console.error('メッセージの送信に失敗しました');
             }
@@ -186,9 +188,6 @@ class ChatApp {
         .catch(error => {
             console.error('エラー:', error);
         });
-
-        // システムメッセージを表示（実際のアプリでは不要）
-        this.showSystemMessage(`${this.currentUser.name}さんがメッセージを送信しました`);
     }
 
     // メッセージの読み込み
@@ -392,9 +391,12 @@ class ChatApp {
         const modal = document.getElementById('direct-message-modal');
         const adminList = document.getElementById('admin-list');
         
+        // ユーザーのクラスに基づいて連絡可能な管理者をフィルタリング
+        const allowedAdmins = this.getAllowedAdminsForUser();
+        
         // 運営者リストを生成
         adminList.innerHTML = '';
-        this.admins.forEach(admin => {
+        allowedAdmins.forEach(admin => {
             const adminItem = document.createElement('div');
             adminItem.className = 'admin-item';
             adminItem.onclick = () => this.startDirectChat(admin);
@@ -411,6 +413,56 @@ class ChatApp {
         });
         
         modal.style.display = 'block';
+    }
+
+    /**
+     * ユーザーのクラスに基づいて連絡可能な管理者を取得する
+     * 各クラスの園児は以下の人とのみやり取り可能：
+     * - 自分のクラスの担任
+     * - 園長先生（admin001）
+     * - 主任保育士（admin002）
+     * @returns {Array} 連絡可能な管理者の配列
+     */
+    getAllowedAdminsForUser() {
+        if (!this.currentUser || !this.currentUser.class) {
+            return this.admins; // クラス情報がない場合は全員表示
+        }
+
+        const userClass = this.currentUser.class;
+        const allowedAdmins = [];
+
+        // 園長先生と主任保育士は常に連絡可能
+        const principal = this.admins.find(admin => admin.id === 'admin001');
+        const headTeacher = this.admins.find(admin => admin.id === 'admin002');
+        
+        if (principal) allowedAdmins.push(principal);
+        if (headTeacher) allowedAdmins.push(headTeacher);
+
+        // クラス担任を追加
+        let classTeacherId = '';
+        switch (userClass) {
+            case 'ライオン組':
+                classTeacherId = 'admin003';
+                break;
+            case 'ぞう組':
+                classTeacherId = 'admin004';
+                break;
+            case 'ひよこ組':
+                classTeacherId = 'admin005';
+                break;
+            case 'あひる組':
+                classTeacherId = 'admin006';
+                break;
+        }
+
+        if (classTeacherId) {
+            const classTeacher = this.admins.find(admin => admin.id === classTeacherId);
+            if (classTeacher) {
+                allowedAdmins.push(classTeacher);
+            }
+        }
+
+        return allowedAdmins;
     }
 
     // ダイレクトメッセージモーダルを閉じる
