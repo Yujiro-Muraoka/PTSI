@@ -1,6 +1,7 @@
-body {
+/* レスポンシブ対応：最小幅を削除 */
+/* body {
     min-width: 450px;
-}
+} */
 
 p {
     color: #000;
@@ -61,5 +62,50 @@ p {
     background-color: #52a8da;
     color: #fff;
     transition: ease-in-out 0.2s;
+}
+
+/* レスポンシブデザイン対応 */
+@media screen and (max-width: 768px) {
+    .white-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 1.5rem;
+    }
+    
+    #login-form {
+        height: auto;
+        min-height: 25rem;
+        padding: 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .white-box {
+        width: 95%;
+        padding: 1rem;
+    }
+    
+    #login-form {
+        min-height: 20rem;
+        padding: 0.5rem;
+    }
+    
+    .info-title {
+        font-size: 1.8rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    #student-id, 
+    #password {
+        height: 3.5rem;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .send {
+        height: 3.5rem;
+        font-size: 1.4rem;
+    }
 }
 

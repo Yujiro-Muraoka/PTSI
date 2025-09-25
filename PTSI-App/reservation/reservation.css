@@ -183,6 +183,73 @@
 }
 
 .white-box .Radio-Text::after {
-
     background-color: #ffffff;
+}
+
+/* レスポンシブデザイン対応 */
+@media screen and (max-width: 768px) {
+    .main-box {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .container {
+        width: 100%;
+        height: auto;
+        margin-right: 0;
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+    
+    .info-box {
+        width: 100%;
+        margin-left: 0;
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .info-box-box {
+        width: 100% !important;
+        margin: 10px;
+    }
+    
+    .name {
+        font-size: 2rem;
+        margin-top: 1.5rem;
+        margin-left: 1rem;
+    }
+    
+    .student-info {
+        font-size: 1.8rem;
+        margin-left: 1rem;
+        margin-top: 1rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .name {
+        font-size: 1.8rem;
+        margin-top: 1rem;
+        margin-left: 0.8rem;
+    }
+    
+    .student-info {
+        font-size: 1.6rem;
+        margin-left: 0.8rem;
+        margin-top: 0.8rem;
+    }
+    
+    .info-box-box {
+        font-size: 1.6rem;
+        margin: 8px;
+    }
+    
+    .white-box p {
+        font-size: 1.6rem;
+        margin-left: 15px;
+    }
+    
+    .white-box label span {
+        margin-left: 15px;
+    }
 }

@@ -17,7 +17,9 @@
     "validate": "node -c server.js && echo 'Server syntax is valid'",
     "docs": "node docs/generate-docs.js",
     "docs:open": "open docs/TECHNICAL_SPECIFICATION.html",
-    "docs:pdf": "node docs/generate-pdf.js"
+    "docs:pdf": "node docs/generate-pdf.js",
+    "build": "echo 'No build process required'",
+    "render": "npm install && npm start"
   },
   "keywords": [],
   "author": "Yujiro Muraoka",

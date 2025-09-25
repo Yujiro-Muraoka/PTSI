@@ -35,7 +35,8 @@ html {
 body {
     background-color: #fff;
     margin: 1.5rem;
-    min-width: 1100px;
+    /* レスポンシブ対応：最小幅を削除 */
+    /* min-width: 1100px; */
 }
 
 p {
@@ -98,4 +99,51 @@ p {
 .logout-box:hover {
     border: 2px solid red;
     cursor: pointer;
+}
+
+/* レスポンシブデザイン対応 */
+@media screen and (max-width: 768px) {
+    body {
+        margin: 1rem;
+    }
+    
+    .top-box {
+        padding: 1rem;
+        border-radius: 0.8rem;
+    }
+    
+    p {
+        font-size: 1.6rem;
+    }
+    
+    .logout, .chat-btn {
+        font-size: 1.4rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        margin: 0.5rem;
+    }
+    
+    html {
+        font-size: 55%;
+    }
+    
+    .top-box {
+        padding: 0.8rem;
+        border-radius: 0.6rem;
+        margin-bottom: 1rem;
+    }
+    
+    p {
+        font-size: 1.4rem;
+    }
+    
+    .logout, .chat-btn {
+        font-size: 1.2rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
 }
