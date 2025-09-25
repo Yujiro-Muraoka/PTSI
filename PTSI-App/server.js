@@ -16,6 +16,7 @@ const app = express();
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const puppeteer = require('puppeteer');
 
 // ミドルウェアの設定
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -49,6 +50,7 @@ app.use('/reservation', express.static(path.join(__dirname, 'reservation')));
 app.use('/chat', express.static(path.join(__dirname, 'chat')));
 app.use('/admin-login', express.static(path.join(__dirname, 'admin-login')));
 app.use('/admin-dashboard', express.static(path.join(__dirname, 'admin-dashboard')));
+app.use('/manuals', express.static(path.join(__dirname, 'manuals')));
 
 // 各ディレクトリ内の唯一のHTMLファイルを直接開く
 app.get('/chart', (req, res) => {
@@ -432,6 +434,86 @@ app.post('/chat/user-info', (req, res) => {
       res.status(404).json({ success: false, message: '該当する学生のデータが見つかりませんでした' });
     }
   });
+});
+
+/**
+ * PDF生成API - 保護者向けマニュアル
+ * HTMLからPDFを生成してダウンロード提供
+ */
+app.get('/download/parent-manual', async (req, res) => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    
+    const page = await browser.newPage();
+    const htmlPath = path.join(__dirname, 'manuals', 'parent-manual.html');
+    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+    
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '15mm',
+        right: '15mm'
+      }
+    });
+    
+    await browser.close();
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="PTSI幼稚園システム_保護者向け操作マニュアル.pdf"');
+    res.send(pdf);
+    
+  } catch (error) {
+    console.error('PDF生成エラー:', error);
+    res.status(500).send('PDFの生成に失敗しました。');
+  }
+});
+
+/**
+ * PDF生成API - 運営者向けマニュアル
+ * HTMLからPDFを生成してダウンロード提供
+ */
+app.get('/download/admin-manual', async (req, res) => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    
+    const page = await browser.newPage();
+    const htmlPath = path.join(__dirname, 'manuals', 'admin-manual.html');
+    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+    
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '15mm',
+        right: '15mm'
+      }
+    });
+    
+    await browser.close();
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="PTSI幼稚園システム_運営者向け操作マニュアル.pdf"');
+    res.send(pdf);
+    
+  } catch (error) {
+    console.error('PDF生成エラー:', error);
+    res.status(500).send('PDFの生成に失敗しました。');
+  }
 });
 
 // エラーハンドリングミドルウェア

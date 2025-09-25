@@ -17,7 +17,8 @@ p {
     background-color: #fff;
     border-radius: 1.2rem;
     width: 400px;
-    height: 80%;
+    min-height: 80%;
+    height: auto;
     padding: 2rem;
     display: block;
     align-items: center;
@@ -40,7 +41,9 @@ p {
     background-color: #fbb42e;
     border-radius: 1.2rem;
     width: 100%;
-    height: 30rem;
+    min-height: 30rem;
+    height: auto;
+    padding: 2rem 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -90,12 +93,114 @@ p {
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
+/* 操作マニュアルダウンロードセクション */
+.manual-download-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e9ecef;
+}
+
+.manual-title {
+    font-size: 1.8rem;
+    color: #72ad38;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.manual-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.manual-btn {
+    display: flex;
+    align-items: center;
+    padding: 1.2rem;
+    border-radius: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.manual-btn.parent-manual {
+    background: linear-gradient(135deg, #72ad38 0%, #8bc34a 100%);
+    color: white;
+    border-color: #72ad38;
+}
+
+.manual-btn.parent-manual:hover {
+    background: linear-gradient(135deg, #689632 0%, #7cb342 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(114, 173, 56, 0.3);
+}
+
+.manual-btn.admin-manual {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+.manual-btn.admin-manual:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.manual-icon {
+    font-size: 2.4rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.manual-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.manual-info strong {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.manual-info small {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    line-height: 1.3;
+}
+
 /* レスポンシブデザイン対応 */
 @media (max-width: 768px) {
     .white-box {
         width: 90%;
         max-width: 400px;
         padding: 1.5rem;
+    }
+    
+    .manual-title {
+        font-size: 1.6rem;
+    }
+    
+    .manual-btn {
+        padding: 1rem;
+    }
+    
+    .manual-icon {
+        font-size: 2rem;
+        margin-right: 0.8rem;
+    }
+    
+    .manual-info strong {
+        font-size: 1.2rem;
+    }
+    
+    .manual-info small {
+        font-size: 1rem;
     }
     
     #login-form {

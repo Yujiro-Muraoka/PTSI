@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTSI幼稚園システム 保護者向け操作マニュアル</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #fbb42e 0%, #f39c12 100%);
+            border-radius: 20px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #72ad38;
+        }
+
+        .section h2 {
+            color: #72ad38;
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h2::before {
+            content: "✨";
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .section h3 {
+            color: #52a8da;
+            font-size: 20px;
+            margin: 20px 0 15px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h3::before {
+            content: "▶";
+            margin-right: 8px;
+            color: #fbb42e;
+        }
+
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #52a8da;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .step-content {
+            margin-left: 10px;
+        }
+
+        .highlight-box {
+            background: #e8f5e8;
+            border: 2px solid #72ad38;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight-box h4 {
+            color: #72ad38;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #fbb42e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #d68910;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .demo-info {
+            background: #d1ecf1;
+            border: 2px solid #52a8da;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-info h4 {
+            color: #52a8da;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .feature-title {
+            color: #72ad38;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+        }
+
+        .footer h3 {
+            margin-bottom: 15px;
+        }
+
+        .contact-info {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 20px;
+            }
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: #72ad38;
+            font-weight: bold;
+        }
+
+        .chat-example {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #52a8da;
+        }
+
+        .message-bubble {
+            background: #52a8da;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+            max-width: 70%;
+        }
+
+        .message-bubble.own {
+            background: #72ad38;
+            margin-left: auto;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <div class="header">
+            <h1>🌈 PTSI幼稚園システム 保護者向け操作マニュアル</h1>
+            <p>お子様の園生活をサポートする便利な機能をご活用ください</p>
+        </div>
+
+        <!-- 目次 -->
+        <div class="section">
+            <h2>📋 目次</h2>
+            <ol>
+                <li><strong>システムについて</strong></li>
+                <li><strong>ログイン方法</strong></li>
+                <li><strong>予約システムの使い方</strong></li>
+                <li><strong>チャット機能の使い方</strong></li>
+                <li><strong>統計データの確認</strong></li>
+                <li><strong>予約確認機能</strong></li>
+                <li><strong>よくある質問</strong></li>
+                <li><strong>お問い合わせ先</strong></li>
+            </ol>
+        </div>
+
+        <!-- 1. システムについて -->
+        <div class="section">
+            <h2>🏫 システムについて</h2>
+            <p>PTSI幼稚園システムは、保護者の皆様と園との連絡をスムーズにするためのWebシステムです。</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">📅</span>
+                    <div class="feature-title">予約システム</div>
+                    <p>面談や各種イベントの予約がオンラインで簡単にできます</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💬</span>
+                    <div class="feature-title">チャット機能</div>
+                    <p>先生方との連絡や園からのお知らせを受け取れます</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📊</span>
+                    <div class="feature-title">統計データ</div>
+                    <p>お子様の登降園状況を視覚的に確認できます</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 2. ログイン方法 -->
+        <div class="section">
+            <h2>🔐 ログイン方法</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Webブラウザでアクセス</h3>
+                    <p>お手持ちのスマートフォンやパソコンのWebブラウザで、園から配布されたURLにアクセスしてください。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>ログイン情報の入力</h3>
+                    <ul>
+                        <li><strong>Student ID:</strong> お子様の学籍番号を入力</li>
+                        <li><strong>Password:</strong> 配布されたパスワードを入力</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>「Login」ボタンをクリック</h3>
+                    <p>入力内容を確認して、青色の「Login」ボタンをクリックしてください。</p>
+                </div>
+            </div>
+
+            <div class="demo-info">
+                <h4>🎯 デモ用ログイン情報</h4>
+                <p><strong>ID:</strong> 22001</p>
+                <p><strong>パスワード:</strong> 22001</p>
+                <p>システムの動作確認にご利用ください。</p>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ ログインできない場合</h4>
+                <ul>
+                    <li>Student IDとパスワードに間違いがないか確認してください</li>
+                    <li>全角文字ではなく、半角英数字で入力してください</li>
+                    <li>問題が解決しない場合は、園にお問い合わせください</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 3. 予約システムの使い方 -->
+        <div class="section">
+            <h2>📅 予約システムの使い方</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>予約ページへアクセス</h3>
+                    <p>ログイン後、メニューから「予約」をクリックしてください。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>予約情報の入力</h3>
+                    <ul>
+                        <li><strong>予約種別:</strong> 面談、イベント参加など目的を選択</li>
+                        <li><strong>希望日時:</strong> カレンダーから希望日を選択</li>
+                        <li><strong>時間帯:</strong> 空いている時間帯を選択</li>
+                        <li><strong>備考:</strong> 特別な要望があれば記入</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>予約の確定</h3>
+                    <p>入力内容を確認し、「予約する」ボタンをクリックして完了です。</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>✨ 便利な機能</h4>
+                <ul>
+                    <li>リアルタイムで空き状況を確認できます</li>
+                    <li>予約完了後、確認メッセージが表示されます</li>
+                    <li>予約状況は「予約確認」ページで後から確認できます</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 4. チャット機能の使い方 -->
+        <div class="section">
+            <h2>💬 チャット機能の使い方</h2>
+            
+            <h3>🌐 ルームチャット</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>チャットルームの選択</h3>
+                    <ul>
+                        <li><strong>全体チャット:</strong> 全保護者共通の掲示板</li>
+                        <li><strong>クラス別チャット:</strong> お子様のクラス専用チャット</li>
+                        <li><strong>園からのお知らせ:</strong> 重要な連絡事項</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>メッセージの送信</h3>
+                    <p>画面下部のメッセージ入力欄にメッセージを入力し、「送信」ボタンまたはEnterキーで送信できます。</p>
+                </div>
+            </div>
+
+            <h3>📧 ダイレクトメッセージ</h3>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>先生との個別連絡</h3>
+                    <p>「個人チャット」ボタンをクリックすると、以下の方々と個別にやり取りできます：</p>
+                    <ul>
+                        <li><strong>お子様のクラス担任</strong></li>
+                        <li><strong>園長先生</strong></li>
+                        <li><strong>主任保育士</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chat-example">
+                <h4>💬 チャット例</h4>
+                <div class="message-bubble">
+                    おはようございます。今日の遠足の件でご相談があります。
+                </div>
+                <div class="message-bubble own">
+                    おはようございます。何かご不明な点がございますか？
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>📝 チャット利用時の注意</h4>
+                <ul>
+                    <li>メッセージは500文字以内で入力してください</li>
+                    <li>緊急時は直接園にお電話ください</li>
+                    <li>プライベートな内容は個人チャットをご利用ください</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 5. 統計データの確認 -->
+        <div class="section">
+            <h2>📊 統計データの確認</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>統計ページへアクセス</h3>
+                    <p>メニューから「統計」をクリックして、お子様の登降園データを確認できます。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>確認できるデータ</h3>
+                    <ul>
+                        <li><strong>遅刻回数:</strong> 月別の遅刻状況</li>
+                        <li><strong>早退回数:</strong> 月別の早退状況</li>
+                        <li><strong>お迎え遅れ:</strong> お迎え時間の記録</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>📈 グラフ表示</h4>
+                <p>データは見やすいグラフ形式で表示され、お子様の園生活の様子を把握しやすくなっています。</p>
+            </div>
+        </div>
+
+        <!-- 6. 予約確認機能 -->
+        <div class="section">
+            <h2>🔍 予約確認機能</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>予約状況の確認</h3>
+                    <p>「予約確認」ページで、現在の予約状況を一覧で確認できます。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>表示される情報</h3>
+                    <ul>
+                        <li>予約日時</li>
+                        <li>予約種別</li>
+                        <li>承認状況</li>
+                        <li>備考欄の内容</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- 7. よくある質問 -->
+        <div class="section">
+            <h2>❓ よくある質問</h2>
+            
+            <div class="step">
+                <div class="step-content">
+                    <h3>Q: パスワードを忘れてしまいました</h3>
+                    <p><strong>A:</strong> 園の事務室までお問い合わせください。新しいパスワードを発行いたします。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-content">
+                    <h3>Q: スマートフォンで使えますか？</h3>
+                    <p><strong>A:</strong> はい、スマートフォン・タブレット・パソコンのすべてで利用できます。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-content">
+                    <h3>Q: 予約をキャンセルしたい場合は？</h3>
+                    <p><strong>A:</strong> チャット機能を使って担任の先生にご連絡いただくか、直接園にお電話ください。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-content">
+                    <h3>Q: システムが使えない時は？</h3>
+                    <p><strong>A:</strong> システムメンテナンスの可能性があります。園にお問い合わせください。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. お問い合わせ先 -->
+        <div class="footer">
+            <h3>📞 お問い合わせ先</h3>
+            <div class="contact-info">
+                <p><strong>PTSI幼稚園</strong></p>
+                <p>📧 Email: info@ptsi-kindergarten.jp</p>
+                <p>📞 Phone: 03-1234-5678</p>
+                <p>🕐 受付時間: 平日 8:00-17:00</p>
+                <br>
+                <p>システムに関するご質問やトラブルがございましたら、<br>
+                お気軽にお問い合わせください。</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
