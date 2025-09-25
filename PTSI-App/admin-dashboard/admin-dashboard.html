@@ -24,8 +24,10 @@
                 <h3>📊 メニュー</h3>
                 <ul class="menu-list">
                     <li><a href="#overview" onclick="showSection('overview')" class="menu-item active">概要</a></li>
+                    <li><a href="#analytics" onclick="showSection('analytics')" class="menu-item">📊 統計分析</a></li>
                     <li><a href="#reservations" onclick="showSection('reservations')" class="menu-item">予約管理</a></li>
                     <li><a href="#students" onclick="showSection('students')" class="menu-item">学生情報</a></li>
+                    <li><a href="#reports" onclick="showSection('reports')" class="menu-item">📈 レポート</a></li>
                     <li><a href="#chat" class="menu-item" onclick="goToChat()">保護者チャット</a></li>
                     <li><a href="#staff-chat" class="menu-item" onclick="goToStaffChat()">職員チャット</a></li>
                 </ul>
@@ -37,28 +39,136 @@
             <!-- 概要セクション -->
             <div id="overview-section" class="content-section active">
                 <h2>📈 システム概要</h2>
+                
+                <!-- 基本統計カード -->
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>今日の予約</h3>
-                        <div class="stat-number" id="today-reservations">-</div>
-                        <p>件の申請</p>
+                    <div class="stat-card primary">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <h3>今日の予約</h3>
+                            <div class="stat-number" id="today-reservations">-</div>
+                            <p>件の申請</p>
+                            <div class="stat-trend" id="today-trend">-</div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>登録学生数</h3>
-                        <div class="stat-number" id="total-students">-</div>
-                        <p>名</p>
+                    <div class="stat-card success">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3>登録学生数</h3>
+                            <div class="stat-number" id="total-students">-</div>
+                            <p>名</p>
+                            <div class="stat-detail">
+                                <span id="active-students">-</span> 名が本日在園
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>総予約数</h3>
-                        <div class="stat-number" id="total-reservations">-</div>
-                        <p>件</p>
+                    <div class="stat-card info">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <h3>総予約数</h3>
+                            <div class="stat-number" id="total-reservations">-</div>
+                            <p>件</p>
+                            <div class="stat-detail">
+                                今月 <span id="monthly-reservations">-</span> 件
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content">
+                            <h3>要注意事項</h3>
+                            <div class="stat-number" id="alerts-count">-</div>
+                            <p>件</p>
+                            <div class="stat-detail">
+                                遅刻・早退が多い学生
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="recent-activity">
-                    <h3>📋 最近の活動</h3>
-                    <div id="recent-activities" class="activity-list">
-                        <p>データを読み込み中...</p>
+                <!-- 詳細統計セクション -->
+                <div class="detailed-stats">
+                    <div class="chart-container">
+                        <h3>📈 予約種別統計（今月）</h3>
+                        <canvas id="reservation-type-chart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>📅 月別予約推移（過去6ヶ月）</h3>
+                        <canvas id="monthly-trend-chart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- クラス別統計 -->
+                <div class="class-stats">
+                    <h3>🏫 クラス別統計</h3>
+                    <div class="class-grid" id="class-statistics">
+                        <div class="class-card">
+                            <h4>ライオン組</h4>
+                            <div class="class-info">
+                                <div class="class-count" id="lion-count">-</div>
+                                <div class="class-details">
+                                    <span class="present" id="lion-present">-</span> 名在園
+                                    <span class="absent" id="lion-absent">-</span> 名欠席
+                                </div>
+                            </div>
+                        </div>
+                        <div class="class-card">
+                            <h4>ぞう組</h4>
+                            <div class="class-info">
+                                <div class="class-count" id="elephant-count">-</div>
+                                <div class="class-details">
+                                    <span class="present" id="elephant-present">-</span> 名在園
+                                    <span class="absent" id="elephant-absent">-</span> 名欠席
+                                </div>
+                            </div>
+                        </div>
+                        <div class="class-card">
+                            <h4>ひよこ組</h4>
+                            <div class="class-info">
+                                <div class="class-count" id="chick-count">-</div>
+                                <div class="class-details">
+                                    <span class="present" id="chick-present">-</span> 名在園
+                                    <span class="absent" id="chick-absent">-</span> 名欠席
+                                </div>
+                            </div>
+                        </div>
+                        <div class="class-card">
+                            <h4>あひる組</h4>
+                            <div class="class-info">
+                                <div class="class-count" id="duck-count">-</div>
+                                <div class="class-details">
+                                    <span class="present" id="duck-present">-</span> 名在園
+                                    <span class="absent" id="duck-absent">-</span> 名欠席
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- リアルタイム活動監視 -->
+                <div class="realtime-section">
+                    <div class="recent-activity">
+                        <h3>📋 最近の活動</h3>
+                        <div class="activity-controls">
+                            <button onclick="refreshActivities()" class="refresh-btn">🔄 更新</button>
+                            <select id="activity-filter" onchange="filterActivities()">
+                                <option value="">全ての活動</option>
+                                <option value="reservation">予約申請</option>
+                                <option value="login">ログイン</option>
+                                <option value="chat">チャット</option>
+                                <option value="admin">管理操作</option>
+                            </select>
+                        </div>
+                        <div id="recent-activities" class="activity-list">
+                            <p>データを読み込み中...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="alerts-section">
+                        <h3>🚨 アラート・通知</h3>
+                        <div id="system-alerts" class="alerts-list">
+                            <p>アラートを確認中...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -93,9 +203,153 @@
                     <p>データを読み込み中...</p>
                 </div>
             </div>
+
+            <!-- 統計分析セクション -->
+            <div id="analytics-section" class="content-section">
+                <h2>📊 統計分析</h2>
+                
+                <!-- 期間選択 -->
+                <div class="analytics-controls">
+                    <div class="period-selector">
+                        <label>分析期間:</label>
+                        <select id="analytics-period" onchange="updateAnalytics()">
+                            <option value="7">過去7日間</option>
+                            <option value="30" selected>過去30日間</option>
+                            <option value="90">過去90日間</option>
+                            <option value="365">過去1年間</option>
+                        </select>
+                    </div>
+                    <button onclick="exportAnalytics()" class="export-button">📊 データ出力</button>
+                </div>
+
+                <!-- 詳細チャート群 -->
+                <div class="analytics-charts">
+                    <div class="chart-row">
+                        <div class="chart-container large">
+                            <h3>📈 予約種別別推移</h3>
+                            <canvas id="detailed-reservation-chart" width="600" height="300"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>⏰ 時間帯別利用統計</h3>
+                            <canvas id="time-usage-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-row">
+                        <div class="chart-container">
+                            <h3>📅 曜日別統計</h3>
+                            <canvas id="weekday-chart" width="400" height="250"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>🏫 クラス別利用率</h3>
+                            <canvas id="class-usage-chart" width="400" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 統計サマリー -->
+                <div class="analytics-summary">
+                    <h3>📋 統計サマリー</h3>
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <h4>最も利用の多い曜日</h4>
+                            <div class="summary-value" id="peak-weekday">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>平均日次予約数</h4>
+                            <div class="summary-value" id="avg-daily-reservations">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>最多利用クラス</h4>
+                            <div class="summary-value" id="most-active-class">-</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>遅刻率</h4>
+                            <div class="summary-value" id="late-rate">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- レポートセクション -->
+            <div id="reports-section" class="content-section">
+                <h2>📈 レポート生成</h2>
+                
+                <!-- レポートタイプ選択 -->
+                <div class="report-controls">
+                    <div class="report-selector">
+                        <h3>📋 レポートタイプ</h3>
+                        <div class="report-options">
+                            <label class="report-option">
+                                <input type="radio" name="report-type" value="daily" checked>
+                                <span>日次レポート</span>
+                            </label>
+                            <label class="report-option">
+                                <input type="radio" name="report-type" value="weekly">
+                                <span>週次レポート</span>
+                            </label>
+                            <label class="report-option">
+                                <input type="radio" name="report-type" value="monthly">
+                                <span>月次レポート</span>
+                            </label>
+                            <label class="report-option">
+                                <input type="radio" name="report-type" value="custom">
+                                <span>カスタムレポート</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="date-range-selector">
+                        <h3>📅 期間選択</h3>
+                        <div class="date-inputs">
+                            <label>開始日:</label>
+                            <input type="date" id="report-start-date">
+                            <label>終了日:</label>
+                            <input type="date" id="report-end-date">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- レポート生成ボタン群 -->
+                <div class="report-actions">
+                    <button onclick="generateReport('preview')" class="preview-button">👁️ プレビュー</button>
+                    <button onclick="generateReport('pdf')" class="pdf-button">📄 PDF出力</button>
+                    <button onclick="generateReport('excel')" class="excel-button">📊 Excel出力</button>
+                    <button onclick="generateReport('email')" class="email-button">📧 メール送信</button>
+                </div>
+
+                <!-- レポートプレビュー -->
+                <div id="report-preview" class="report-preview">
+                    <h3>📖 レポートプレビュー</h3>
+                    <div id="report-content" class="report-content">
+                        <p>レポートタイプを選択して「プレビュー」ボタンをクリックしてください。</p>
+                    </div>
+                </div>
+
+                <!-- 定期レポート設定 -->
+                <div class="scheduled-reports">
+                    <h3>⏰ 定期レポート設定</h3>
+                    <div class="schedule-options">
+                        <label class="schedule-option">
+                            <input type="checkbox" id="daily-auto-report">
+                            <span>日次自動レポート (毎日午後5時)</span>
+                        </label>
+                        <label class="schedule-option">
+                            <input type="checkbox" id="weekly-auto-report">
+                            <span>週次自動レポート (毎週月曜日午前9時)</span>
+                        </label>
+                        <label class="schedule-option">
+                            <input type="checkbox" id="monthly-auto-report">
+                            <span>月次自動レポート (毎月1日午前10時)</span>
+                        </label>
+                    </div>
+                    <button onclick="saveScheduleSettings()" class="save-button">💾 設定保存</button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="admin-dashboard.js"></script>
 </body>
 </html>

@@ -310,6 +310,406 @@
     }
 }
 
+/* 強化された統計カード */
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #3498db, #2980b9);
+}
+
+.stat-card.primary::before { background: linear-gradient(to bottom, #3498db, #2980b9); }
+.stat-card.success::before { background: linear-gradient(to bottom, #2ecc71, #27ae60); }
+.stat-card.info::before { background: linear-gradient(to bottom, #9b59b6, #8e44ad); }
+.stat-card.warning::before { background: linear-gradient(to bottom, #f39c12, #e67e22); }
+
+.stat-icon {
+    font-size: 4rem;
+    opacity: 0.8;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-trend {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+.stat-trend.up { color: #27ae60; }
+.stat-trend.down { color: #e74c3c; }
+.stat-trend.neutral { color: #7f8c8d; }
+
+.stat-detail {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-top: 0.5rem;
+}
+
+/* 詳細統計セクション */
+.detailed-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin: 3rem 0;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+}
+
+.chart-container h3 {
+    margin-bottom: 2rem;
+    color: #2c3e50;
+}
+
+/* クラス別統計 */
+.class-stats {
+    margin: 3rem 0;
+}
+
+.class-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.class-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3498db;
+    transition: transform 0.3s ease;
+}
+
+.class-card:hover {
+    transform: translateY(-2px);
+}
+
+.class-card h4 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.class-count {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.class-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+}
+
+.class-details .present { color: #27ae60; }
+.class-details .absent { color: #e74c3c; }
+
+/* リアルタイム活動監視 */
+.realtime-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    margin: 3rem 0;
+}
+
+.activity-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+.refresh-btn {
+    padding: 0.8rem 1.5rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background 0.3s ease;
+}
+
+.refresh-btn:hover {
+    background: #2980b9;
+}
+
+/* アラートセクション */
+.alerts-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #e74c3c;
+}
+
+.alerts-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.alert-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    border-left: 3px solid #f39c12;
+    background: #fff3cd;
+}
+
+.alert-item.high {
+    border-left-color: #e74c3c;
+    background: #f8d7da;
+}
+
+/* 統計分析セクション */
+.analytics-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.period-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.period-selector label {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.period-selector select {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 1.4rem;
+}
+
+/* 分析チャート */
+.analytics-charts {
+    margin: 3rem 0;
+}
+
+.chart-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.chart-container.large {
+    grid-column: span 1;
+}
+
+/* 統計サマリー */
+.analytics-summary {
+    margin: 3rem 0;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-top: 4px solid #3498db;
+}
+
+.summary-card h4 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #7f8c8d;
+}
+
+.summary-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* レポートセクション */
+.report-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
+
+.report-selector,
+.date-range-selector {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.report-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.report-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.report-option:hover {
+    background: #f8f9fa;
+}
+
+.report-option input[type="radio"] {
+    margin: 0;
+}
+
+.date-inputs {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+.date-inputs input[type="date"] {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 1.4rem;
+}
+
+/* レポートアクション */
+.report-actions {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    justify-content: center;
+}
+
+.report-actions button {
+    padding: 1.2rem 2.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.4rem;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.report-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.preview-button { background: #3498db; color: white; }
+.pdf-button { background: #e74c3c; color: white; }
+.excel-button { background: #27ae60; color: white; }
+.email-button { background: #9b59b6; color: white; }
+
+/* レポートプレビュー */
+.report-preview {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+}
+
+.report-content {
+    min-height: 400px;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    background: #f8f9fa;
+}
+
+/* 定期レポート設定 */
+.scheduled-reports {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-options {
+    margin: 2rem 0;
+}
+
+.schedule-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.schedule-option:hover {
+    background: #f8f9fa;
+}
+
+.save-button {
+    padding: 1.2rem 2.5rem;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.4rem;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.save-button:hover {
+    background: #229954;
+}
+
 @media (max-width: 480px) {
     .main-content {
         padding: 1rem;
@@ -328,4 +728,121 @@
         padding: 1rem;
         font-size: 1.3rem;
     }
+    
+    .detailed-stats,
+    .chart-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .realtime-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .report-controls {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 通知システム */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.notification.info {
+    background-color: #2196F3;
+}
+
+.notification.warning {
+    background-color: #ff9800;
+}
+
+/* エクスポートローディング */
+.export-loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    z-index: 1001;
+    font-size: 16px;
+}
+
+/* 追加アニメーション */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* チャートのアニメーション */
+.chart-container canvas {
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* ホバーエフェクトの強化 */
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.period-btn:hover:not(.active) {
+    background-color: #f0f8ff;
+    transform: translateY(-1px);
+}
+
+.class-stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.alert-item:hover {
+    background-color: #f8f9fa;
+}
+
+.activity-item:hover {
+    background-color: #f8f9fa;
+}
 }

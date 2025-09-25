@@ -115,8 +115,7 @@ function showSection(sectionName) {
 }
 
 /**
- * ダッシュボードデータの読み込み
- * 統計情報と最近の活動を取得
+ * ダッシュボードデータを読み込む
  * @returns {void}
  */
 function loadDashboardData() {
@@ -124,12 +123,16 @@ function loadDashboardData() {
     fetch('/admin/stats')
         .then(response => response.json())
         .then(data => {
-            document.getElementById('today-reservations').textContent = data.todayReservations || 0;
-            document.getElementById('total-students').textContent = data.totalStudents || 0;
-            document.getElementById('total-reservations').textContent = data.totalReservations || 0;
+            updateBasicStats(data);
+            updateClassStats(data.classStats || {});
+            updateTrendData(data.trends || {});
         })
         .catch(error => {
             console.error('統計データの取得に失敗:', error);
+            // デモデータでフォールバック
+            updateBasicStats(generateDemoStats());
+            updateClassStats(generateDemoClassStats());
+            loadDemoCharts();
         });
     
     // 最近の活動を取得
@@ -140,8 +143,165 @@ function loadDashboardData() {
         })
         .catch(error => {
             console.error('最近の活動データの取得に失敗:', error);
-            document.getElementById('recent-activities').innerHTML = '<p>データの取得に失敗しました。</p>';
+            displayRecentActivities(generateDemoActivities());
         });
+
+    // アラートを取得
+    loadSystemAlerts();
+}
+
+/**
+ * 基本統計を更新する
+ * @param {Object} data - 統計データ
+ * @returns {void}
+ */
+function updateBasicStats(data) {
+    // 今日の予約数
+    updateStatCard('today-reservations', data.todayReservations || 0, data.reservationsTrend || '+0');
+    
+    // 登録学生数
+    updateStatCard('total-students', data.totalStudents || 0, data.studentsTrend || '+0');
+    
+    // 総予約数
+    updateStatCard('total-reservations', data.totalReservations || 0, data.totalReservationsTrend || '+0');
+    
+    // 出席率
+    updateStatCard('attendance-rate', data.attendanceRate || '95%', data.attendanceTrend || '+2%');
+}
+
+/**
+ * 統計カードを更新する
+ * @param {string} elementId - 要素ID
+ * @param {string|number} value - 値
+ * @param {string} trend - トレンド
+ * @returns {void}
+ */
+function updateStatCard(elementId, value, trend) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = value;
+    }
+    
+    const trendElement = document.getElementById(`${elementId}-trend`);
+    if (trendElement) {
+        trendElement.textContent = trend;
+        // トレンドに基づいてクラスを設定
+        trendElement.className = 'stat-trend ' + (trend.startsWith('+') ? 'positive' : 
+                                                 trend.startsWith('-') ? 'negative' : 'neutral');
+    }
+}
+
+/**
+ * クラス別統計を更新する
+ * @param {Object} classStats - クラス別統計データ
+ * @returns {void}
+ */
+function updateClassStats(classStats) {
+    const classStatsGrid = document.getElementById('class-stats-grid');
+    if (!classStatsGrid) return;
+
+    const classStatsHTML = Object.entries(classStats).map(([className, stats]) => `
+        <div class="class-stat-item">
+            <h4>${className}</h4>
+            <div class="stat-row">
+                <span class="stat-label">在籍数</span>
+                <span class="stat-value">${stats.enrolled || 0}名</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">今日の出席</span>
+                <span class="stat-value">${stats.todayAttendance || 0}名</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">出席率</span>
+                <span class="stat-value">${stats.attendanceRate || '0%'}</span>
+            </div>
+        </div>
+    `).join('');
+
+    classStatsGrid.innerHTML = classStatsHTML;
+}
+
+/**
+ * トレンドデータを更新する
+ * @param {Object} trends - トレンドデータ
+ * @returns {void}
+ */
+function updateTrendData(trends) {
+    // 月次予約トレンドチャート
+    if (trends.monthlyReservations) {
+        createMonthlyReservationsChart(trends.monthlyReservations);
+    }
+    
+    // 週次出席率チャート
+    if (trends.weeklyAttendance) {
+        createWeeklyAttendanceChart(trends.weeklyAttendance);
+    }
+    
+    // クラス別分布チャート
+    if (trends.classDistribution) {
+        createClassDistributionChart(trends.classDistribution);
+    }
+}
+
+/**
+ * システムアラートを読み込む
+ * @returns {void}
+ */
+function loadSystemAlerts() {
+    fetch('/admin/alerts')
+        .then(response => response.json())
+        .then(data => {
+            displaySystemAlerts(data.alerts || []);
+        })
+        .catch(error => {
+            console.error('アラートデータの取得に失敗:', error);
+            displaySystemAlerts([]);
+        });
+}
+
+/**
+ * システムアラートを表示する
+ * @param {Array<Object>} alerts - アラートデータ
+ * @returns {void}
+ */
+function displaySystemAlerts(alerts) {
+    const alertsContainer = document.getElementById('system-alerts');
+    if (!alertsContainer) return;
+    
+    if (!alerts.length) {
+        alertsContainer.innerHTML = '<p class="no-alerts">現在のアラートはありません。</p>';
+        return;
+    }
+    
+    const alertsHTML = alerts.map(alert => `
+        <div class="alert-item ${alert.priority || 'info'}">
+            <div class="alert-icon">
+                ${getAlertIcon(alert.type)}
+            </div>
+            <div class="alert-content">
+                <div class="alert-title">${alert.title}</div>
+                <div class="alert-description">${alert.description}</div>
+                <div class="alert-time">${new Date(alert.timestamp).toLocaleString('ja-JP')}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    alertsContainer.innerHTML = alertsHTML;
+}
+
+/**
+ * アラートアイコンを取得する
+ * @param {string} type - アラートタイプ
+ * @returns {string} - アイコンHTML
+ */
+function getAlertIcon(type) {
+    const icons = {
+        warning: '⚠️',
+        error: '❌',
+        info: 'ℹ️',
+        success: '✅'
+    };
+    return icons[type] || icons.info;
 }
 
 /**
@@ -307,8 +467,409 @@ function getTypeLabel(type) {
     if (type.startsWith('type1')) return '遅刻申請';
     if (type.startsWith('type2')) return '早退申請';
     if (type.startsWith('type3')) return '欠席申請';
-    if (type.startsWith('type4')) return '延長保育';
+    if (type.startsWith('type4')) return '延長申請';
     return type;
+}
+
+// Chart.js関連の関数
+let chartsInstances = {};
+
+/**
+ * 月次予約トレンドチャートを作成
+ * @param {Object} data - チャートデータ
+ * @returns {void}
+ */
+function createMonthlyReservationsChart(data) {
+    const ctx = document.getElementById('monthlyReservationsChart');
+    if (!ctx) return;
+
+    // 既存のチャートを破棄
+    if (chartsInstances.monthlyReservations) {
+        chartsInstances.monthlyReservations.destroy();
+    }
+
+    chartsInstances.monthlyReservations = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels || ['1月', '2月', '3月', '4月', '5月', '6月'],
+            datasets: [{
+                label: '予約数',
+                data: data.values || [45, 52, 48, 61, 55, 67],
+                borderColor: '#4CAF50',
+                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * 週次出席率チャートを作成
+ * @param {Object} data - チャートデータ
+ * @returns {void}
+ */
+function createWeeklyAttendanceChart(data) {
+    const ctx = document.getElementById('weeklyAttendanceChart');
+    if (!ctx) return;
+
+    // 既存のチャートを破棄
+    if (chartsInstances.weeklyAttendance) {
+        chartsInstances.weeklyAttendance.destroy();
+    }
+
+    chartsInstances.weeklyAttendance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels || ['月', '火', '水', '木', '金'],
+            datasets: [{
+                label: '出席率 (%)',
+                data: data.values || [95, 92, 98, 94, 96],
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ],
+                borderWidth: 0,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * クラス別分布チャートを作成
+ * @param {Object} data - チャートデータ
+ * @returns {void}
+ */
+function createClassDistributionChart(data) {
+    const ctx = document.getElementById('classDistributionChart');
+    if (!ctx) return;
+
+    // 既存のチャートを破棄
+    if (chartsInstances.classDistribution) {
+        chartsInstances.classDistribution.destroy();
+    }
+
+    chartsInstances.classDistribution = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.labels || ['ひまわり組', 'ばら組', 'さくら組', 'すみれ組'],
+            datasets: [{
+                data: data.values || [25, 30, 28, 22],
+                backgroundColor: [
+                    '#FFD700',
+                    '#FF69B4',
+                    '#FFC0CB',
+                    '#9370DB'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * デモチャートを読み込む
+ * @returns {void}
+ */
+function loadDemoCharts() {
+    // デモデータでチャートを初期化
+    createMonthlyReservationsChart({
+        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+        values: [45, 52, 48, 61, 55, 67]
+    });
+    
+    createWeeklyAttendanceChart({
+        labels: ['月', '火', '水', '木', '金'],
+        values: [95, 92, 98, 94, 96]
+    });
+    
+    createClassDistributionChart({
+        labels: ['ひまわり組', 'ばら組', 'さくら組', 'すみれ組'],
+        values: [25, 30, 28, 22]
+    });
+}
+
+/**
+ * デモ統計データを生成
+ * @returns {Object} デモ統計データ
+ */
+function generateDemoStats() {
+    return {
+        todayReservations: 42,
+        totalStudents: 105,
+        totalReservations: 1247,
+        attendanceRate: '95%',
+        reservationsTrend: '+5',
+        studentsTrend: '+2',
+        totalReservationsTrend: '+18',
+        attendanceTrend: '+2%'
+    };
+}
+
+/**
+ * デモクラス統計データを生成
+ * @returns {Object} デモクラス統計データ
+ */
+function generateDemoClassStats() {
+    return {
+        'ひまわり組': {
+            enrolled: 25,
+            todayAttendance: 23,
+            attendanceRate: '92%'
+        },
+        'ばら組': {
+            enrolled: 30,
+            todayAttendance: 28,
+            attendanceRate: '93%'
+        },
+        'さくら組': {
+            enrolled: 28,
+            todayAttendance: 27,
+            attendanceRate: '96%'
+        },
+        'すみれ組': {
+            enrolled: 22,
+            todayAttendance: 21,
+            attendanceRate: '95%'
+        }
+    };
+}
+
+/**
+ * デモ活動データを生成
+ * @returns {Array} デモ活動データ
+ */
+function generateDemoActivities() {
+    const now = new Date();
+    return [
+        {
+            type: 'reservation',
+            description: '田中様が明日の遅刻申請を提出しました',
+            timestamp: new Date(now.getTime() - 10 * 60 * 1000)
+        },
+        {
+            type: 'login',
+            description: '佐藤先生がログインしました',
+            timestamp: new Date(now.getTime() - 25 * 60 * 1000)
+        },
+        {
+            type: 'chat',
+            description: '職員チャットに新しいメッセージがあります',
+            timestamp: new Date(now.getTime() - 45 * 60 * 1000)
+        },
+        {
+            type: 'system',
+            description: 'システムの定期バックアップが完了しました',
+            timestamp: new Date(now.getTime() - 2 * 60 * 60 * 1000)
+        }
+    ];
+}
+
+/**
+ * 活動アイコンを取得する
+ * @param {string} type - 活動タイプ
+ * @returns {string} - アイコンHTML
+ */
+function getActivityIcon(type) {
+    const icons = {
+        reservation: '📅',
+        login: '🔑',
+        chat: '💬',
+        system: '⚙️'
+    };
+    return icons[type] || icons.system;
+}
+
+/**
+ * 分析期間を変更する
+ * @param {string} period - 期間（week, month, year）
+ * @returns {void}
+ */
+function changeAnalyticsPeriod(period) {
+    // 期間ボタンのアクティブ状態を更新
+    const buttons = document.querySelectorAll('.period-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    const activeButton = document.querySelector(`[onclick="changeAnalyticsPeriod('${period}')"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+    }
+    
+    // 期間に応じたデータを読み込み
+    loadAnalyticsData(period);
+}
+
+/**
+ * 分析データを読み込む
+ * @param {string} period - 期間
+ * @returns {void}
+ */
+function loadAnalyticsData(period) {
+    fetch(`/admin/analytics?period=${period}`)
+        .then(response => response.json())
+        .then(data => {
+            updateAnalyticsCharts(data);
+        })
+        .catch(error => {
+            console.error('分析データの取得に失敗:', error);
+            // デモデータで更新
+            loadDemoCharts();
+        });
+}
+
+/**
+ * 分析チャートを更新
+ * @param {Object} data - 分析データ
+ * @returns {void}
+ */
+function updateAnalyticsCharts(data) {
+    if (data.reservationTrend) {
+        createMonthlyReservationsChart(data.reservationTrend);
+    }
+    
+    if (data.attendanceData) {
+        createWeeklyAttendanceChart(data.attendanceData);
+    }
+    
+    if (data.classDistribution) {
+        createClassDistributionChart(data.classDistribution);
+    }
+}
+
+/**
+ * レポートをエクスポートする
+ * @param {string} format - エクスポート形式（pdf, excel, csv）
+ * @returns {void}
+ */
+function exportReport(format) {
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'export-loading';
+    loadingMsg.textContent = `${format.toUpperCase()}形式でエクスポート中...`;
+    document.body.appendChild(loadingMsg);
+    
+    fetch(`/admin/export-report?format=${format}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('エクスポートに失敗しました');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // ファイルダウンロード
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `report_${new Date().toISOString().split('T')[0]}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            // 成功メッセージ
+            showNotification(`レポートを${format.toUpperCase()}形式でエクスポートしました`, 'success');
+        })
+        .catch(error => {
+            console.error('エクスポートエラー:', error);
+            showNotification('エクスポートに失敗しました', 'error');
+        })
+        .finally(() => {
+            document.body.removeChild(loadingMsg);
+        });
+}
+
+/**
+ * 通知を表示する
+ * @param {string} message - メッセージ
+ * @param {string} type - タイプ（success, error, info）
+ * @returns {void}
+ */
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // アニメーション
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // 3秒後に削除
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
 }
 
 /**

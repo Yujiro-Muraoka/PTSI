@@ -705,10 +705,57 @@ app.get('/admin/stats', (req, res) => {
       totalStudents = Math.max(0, studentRows.length - 1); // ヘッダー行を除く
     }
     
+    // 拡張統計データ
+    const attendanceRate = '95%'; // デモデータ
+    const classStats = {
+      'ひまわり組': {
+        enrolled: 25,
+        todayAttendance: 23,
+        attendanceRate: '92%'
+      },
+      'ばら組': {
+        enrolled: 30,
+        todayAttendance: 28,
+        attendanceRate: '93%'
+      },
+      'さくら組': {
+        enrolled: 28,
+        todayAttendance: 27,
+        attendanceRate: '96%'
+      },
+      'すみれ組': {
+        enrolled: 22,
+        todayAttendance: 21,
+        attendanceRate: '95%'
+      }
+    };
+    
+    const trends = {
+      monthlyReservations: {
+        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+        values: [45, 52, 48, 61, 55, 67]
+      },
+      weeklyAttendance: {
+        labels: ['月', '火', '水', '木', '金'],
+        values: [95, 92, 98, 94, 96]
+      },
+      classDistribution: {
+        labels: ['ひまわり組', 'ばら組', 'さくら組', 'すみれ組'],
+        values: [25, 30, 28, 22]
+      }
+    };
+
     res.json({
       todayReservations,
       totalReservations,
-      totalStudents
+      totalStudents,
+      attendanceRate,
+      reservationsTrend: '+5',
+      studentsTrend: '+2',
+      totalReservationsTrend: '+18',
+      attendanceTrend: '+2%',
+      classStats,
+      trends
     });
   } catch (error) {
     console.error('統計データ取得エラー:', error);
@@ -859,6 +906,129 @@ app.use((req, res, next) => {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
+});
+
+/**
+ * システムアラートAPI
+ */
+app.get('/admin/alerts', (req, res) => {
+  try {
+    const alerts = [
+      {
+        type: 'warning',
+        priority: 'warning',
+        title: '出席率低下の注意',
+        description: 'ひまわり組の出席率が平均を下回っています',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
+      },
+      {
+        type: 'info',
+        priority: 'info',
+        title: 'システムメンテナンス予定',
+        description: '来週日曜日にシステムメンテナンスを予定しています',
+        timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000)
+      }
+    ];
+    
+    res.json({ alerts });
+  } catch (error) {
+    console.error('アラートデータ取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * 分析データAPI
+ */
+app.get('/admin/analytics', (req, res) => {
+  try {
+    const period = req.query.period || 'month';
+    
+    // 期間に応じたサンプルデータ
+    let analyticsData = {};
+    
+    switch (period) {
+      case 'week':
+        analyticsData = {
+          reservationTrend: {
+            labels: ['月', '火', '水', '木', '金', '土', '日'],
+            values: [12, 15, 18, 14, 16, 8, 5]
+          },
+          attendanceData: {
+            labels: ['月', '火', '水', '木', '金'],
+            values: [98, 95, 97, 93, 96]
+          }
+        };
+        break;
+      case 'year':
+        analyticsData = {
+          reservationTrend: {
+            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            values: [45, 52, 48, 61, 55, 67, 72, 58, 63, 69, 51, 47]
+          },
+          attendanceData: {
+            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            values: [94, 95, 92, 96, 98, 95, 93, 89, 97, 95, 94, 96]
+          }
+        };
+        break;
+      default: // month
+        analyticsData = {
+          reservationTrend: {
+            labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+            values: [45, 52, 48, 61, 55, 67]
+          },
+          attendanceData: {
+            labels: ['月', '火', '水', '木', '金'],
+            values: [95, 92, 98, 94, 96]
+          }
+        };
+    }
+    
+    analyticsData.classDistribution = {
+      labels: ['ひまわり組', 'ばら組', 'さくら組', 'すみれ組'],
+      values: [25, 30, 28, 22]
+    };
+    
+    res.json(analyticsData);
+  } catch (error) {
+    console.error('分析データ取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * レポートエクスポートAPI
+ */
+app.get('/admin/export-report', (req, res) => {
+  try {
+    const format = req.query.format || 'pdf';
+    
+    // 実際の実装では、適切な形式でレポートを生成
+    // ここではデモ用の簡単なレスポンス
+    switch (format) {
+      case 'pdf':
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="report.pdf"');
+        res.send(Buffer.from('PDF Report Content')); // デモ用
+        break;
+      case 'excel':
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="report.xlsx"');
+        res.send(Buffer.from('Excel Report Content')); // デモ用
+        break;
+      case 'csv':
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="report.csv"');
+        res.send('Name,Class,Attendance\nTest Student,ひまわり組,95%'); // デモ用
+        break;
+      default:
+        res.status(400).json({ error: '不正なフォーマット' });
+    }
+  } catch (error) {
+    console.error('レポートエクスポートエラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
 });
 
 // サーバーを起動
