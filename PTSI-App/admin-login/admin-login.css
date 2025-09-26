@@ -1,4 +1,21 @@
 /* 管理者ログインページ専用スタイル */
+/* テナント情報表示 */
+.tenant-info {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.tenant-name {
+    background: rgba(52, 152, 219, 0.1);
+    color: #2c3e50;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-size: 1.4rem;
+    font-weight: 500;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    display: inline-block;
+}
+
 .login-title {
     color: #2c3e50;
     font-size: 2.8rem;

@@ -111,7 +111,7 @@ function goToAdminLogin() {
     document.body.style.opacity = '0.8';
     
     setTimeout(() => {
-        window.location.href = `/login?tenant=${currentTenant.tenantId}&type=admin`;
+        window.location.href = `/admin-login?tenant=${currentTenant.tenantId}`;
     }, 300);
 }
 

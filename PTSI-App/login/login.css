@@ -4,6 +4,22 @@ p {
     font-size: 1.8rem;
 }
 
+/* テナント情報表示 */
+.tenant-info {
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.tenant-name {
+    background: rgba(114, 173, 56, 0.1);
+    color: #2c5530;
+    padding: 0.3rem 1rem;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border: 1px solid rgba(114, 173, 56, 0.3);
+}
+
 /* ログインフォームのタイトル */
 .info-title {
     font-size: 2rem;

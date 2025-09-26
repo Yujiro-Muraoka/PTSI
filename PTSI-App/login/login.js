@@ -1,4 +1,39 @@
 /**
+ * ページ読み込み時にテナント情報を表示
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    displayTenantInfo();
+});
+
+/**
+ * テナント情報を表示する関数
+ */
+async function displayTenantInfo() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantId = urlParams.get('tenant');
+    
+    if (tenantId) {
+        try {
+            const response = await fetch(`/api/tenants/${tenantId}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                const tenantInfo = document.getElementById('tenant-info');
+                const tenantName = document.getElementById('tenant-name');
+                
+                tenantName.textContent = result.tenant.name;
+                tenantInfo.style.display = 'block';
+                
+                // ページタイトルも更新
+                document.title = `ログイン - ${result.tenant.name}`;
+            }
+        } catch (error) {
+            console.error('テナント情報の取得に失敗しました:', error);
+        }
+    }
+}
+
+/**
  * ログイン処理を実行する関数
  * 学生IDとパスワードを取得し、サーバーに認証リクエストを送信
  * @returns {void}

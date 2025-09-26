@@ -6,6 +6,41 @@
  */
 
 /**
+ * ページ読み込み時にテナント情報を表示
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    displayTenantInfo();
+});
+
+/**
+ * テナント情報を表示する関数
+ */
+async function displayTenantInfo() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantId = urlParams.get('tenant');
+    
+    if (tenantId) {
+        try {
+            const response = await fetch(`/api/tenants/${tenantId}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                const tenantInfo = document.getElementById('tenant-info');
+                const tenantName = document.getElementById('tenant-name');
+                
+                tenantName.textContent = result.tenant.name;
+                tenantInfo.style.display = 'block';
+                
+                // ページタイトルも更新
+                document.title = `管理者ログイン - ${result.tenant.name}`;
+            }
+        } catch (error) {
+            console.error('テナント情報の取得に失敗しました:', error);
+        }
+    }
+}
+
+/**
  * 管理者ログイン処理を実行する関数
  * 管理者IDとパスワードを検証し、認証成功時は管理者ダッシュボードへリダイレクト
  * @returns {void}
@@ -69,8 +104,15 @@ function adminLogin() {
             document.cookie = `adminRole=${data.adminRole}; expires=${expires.toUTCString()}; path=/`;
             document.cookie = `adminName=${encodeURIComponent(data.adminName)}; expires=${expires.toUTCString()}; path=/`;
             
-            // 管理者ダッシュボードへリダイレクト
-            window.location.href = '/admin-dashboard';
+            // テナント情報もCookieに保存
+            const urlParams = new URLSearchParams(window.location.search);
+            const tenantId = urlParams.get('tenant');
+            if (tenantId) {
+                document.cookie = `tenantId=${tenantId}; expires=${expires.toUTCString()}; path=/`;
+            }
+            
+            // 管理者ダッシュボードへリダイレクト（テナント情報付き）
+            window.location.href = `/admin-dashboard${tenantId ? '?tenant=' + tenantId : ''}`;
         } else {
             // 認証失敗時のエラー表示
             errorMessageElement.textContent = data.message || '管理者IDまたはパスワードが正しくありません。';

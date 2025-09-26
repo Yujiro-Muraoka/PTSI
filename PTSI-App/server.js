@@ -48,6 +48,7 @@ app.use('/login', express.static(path.join(__dirname, 'login')));
 app.use('/reservation', express.static(path.join(__dirname, 'reservation')));
 app.use('/chat', express.static(path.join(__dirname, 'chat')));
 app.use('/admin-login', express.static(path.join(__dirname, 'admin-login')));
+app.use('/analytics', express.static(path.join(__dirname, 'analytics')));
 app.use('/admin-dashboard', express.static(path.join(__dirname, 'admin-dashboard')));
 app.use('/manuals', express.static(path.join(__dirname, 'manuals')));
 
@@ -123,10 +124,34 @@ app.get('/chat', (req, res) => {
 });
 
 app.get('/admin-login', (req, res) => {
+  const tenantId = req.query.tenant;
+  
+  if (!tenantId) {
+    // テナントが指定されていない場合はテナント選択にリダイレクト
+    return res.redirect('/tenant-selection');
+  }
+  
+  // テナントの存在確認
+  if (!fs.existsSync(path.join(__dirname, 'tenant-config', `${tenantId}.json`))) {
+    return res.redirect('/tenant-selection?error=tenant_not_found');
+  }
+  
   res.sendFile(path.join(__dirname, 'admin-login', 'admin-login.html'));
 });
 
 app.get('/admin-dashboard', (req, res) => {
+  const tenantId = req.query.tenant || req.cookies.tenantId;
+  
+  if (!tenantId) {
+    // テナントが指定されていない場合はテナント選択にリダイレクト
+    return res.redirect('/tenant-selection');
+  }
+  
+  // テナントの存在確認
+  if (!fs.existsSync(path.join(__dirname, 'tenant-config', `${tenantId}.json`))) {
+    return res.redirect('/tenant-selection?error=tenant_not_found');
+  }
+  
   res.sendFile(path.join(__dirname, 'admin-dashboard', 'admin-dashboard.html'));
 });
 
@@ -136,6 +161,24 @@ app.get('/reservation-settings', (req, res) => {
 
 // 保育園選択システムの静的ファイル配信
 app.use('/tenant-selection', express.static(path.join(__dirname, 'tenant-selection')));
+
+// データ分析システムの静的ファイル配信
+app.use('/analytics', express.static(path.join(__dirname, 'analytics')));
+
+// データ分析ページのルート
+app.get('/analytics', (req, res) => {
+  const tenantId = req.query.tenant || req.cookies.tenantId;
+  
+  if (!tenantId) {
+    return res.redirect('/tenant-selection');
+  }
+  
+  if (!fs.existsSync(path.join(__dirname, 'tenant-config', `${tenantId}.json`))) {
+    return res.redirect('/tenant-selection?error=tenant_not_found');
+  }
+  
+  res.sendFile(path.join(__dirname, 'analytics', 'analytics.html'));
+});
 
 // 保育園選択ページのルーティング
 app.get('/tenant-selection', (req, res) => {
@@ -1077,6 +1120,43 @@ function getTenantConfig(tenantId) {
     return null;
   }
 }
+
+/**
+ * データ分析API - 学生データ取得
+ */
+app.get('/api/analytics/student-data', (req, res) => {
+  try {
+    const tenantId = req.query.tenant;
+    
+    if (!tenantId) {
+      return res.status(400).json({ success: false, message: 'テナントIDが指定されていません。' });
+    }
+    
+    const studentInfoPath = getTenantDataPath(tenantId, 'student-info.csv');
+    
+    if (!fs.existsSync(studentInfoPath)) {
+      return res.status(404).json({ success: false, message: '学生データが見つかりません。' });
+    }
+    
+    const csvData = fs.readFileSync(studentInfoPath, 'utf8');
+    const lines = csvData.trim().split('\n');
+    const headers = lines[0].split(',');
+    
+    const students = lines.slice(1).map(line => {
+      const values = line.split(',');
+      const student = {};
+      headers.forEach((header, index) => {
+        student[header] = values[index];
+      });
+      return student;
+    });
+    
+    res.json({ success: true, data: students });
+  } catch (error) {
+    console.error('学生データ取得エラー:', error);
+    res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+  }
+});
 
 // エラーハンドリングミドルウェア
 app.use((err, req, res, next) => {

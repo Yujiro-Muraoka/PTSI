@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データ分析 - PTSI</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="analytics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">📊 データ分析ダッシュボード</h1>
+        <div class="tenant-info" id="tenant-info" style="display: none;">
+            <span class="tenant-name" id="tenant-name"></span>
+        </div>
+        <div class="header-actions">
+            <button class="refresh-btn" onclick="refreshData()">🔄 データ更新</button>
+            <button class="export-btn" onclick="exportData()">📁 データエクスポート</button>
+        </div>
+    </div>
+
+    <div class="analytics-container">
+        <!-- サマリーカード -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="card-icon">👶</div>
+                <div class="card-content">
+                    <h3>総園児数</h3>
+                    <div class="card-value" id="total-students">-</div>
+                    <div class="card-subtitle">全クラス合計</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon">🏫</div>
+                <div class="card-content">
+                    <h3>クラス数</h3>
+                    <div class="card-value" id="total-classes">-</div>
+                    <div class="card-subtitle">運営中のクラス</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon">📈</div>
+                <div class="card-content">
+                    <h3>平均出席率</h3>
+                    <div class="card-value" id="attendance-rate">-</div>
+                    <div class="card-subtitle">今月の実績</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="card-icon">⏰</div>
+                <div class="card-content">
+                    <h3>延長保育利用率</h3>
+                    <div class="card-value" id="extended-care-rate">-</div>
+                    <div class="card-subtitle">全園児に対する割合</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- チャートエリア -->
+        <div class="charts-container">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3>クラス別園児数分布</h3>
+                    <div class="chart-controls">
+                        <select id="class-chart-type">
+                            <option value="bar">棒グラフ</option>
+                            <option value="pie">円グラフ</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="classDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3>保育タイプ別分布</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="careTypeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3>遅刻・早退統計</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="attendanceIssuesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3>月別園児数推移</h3>
+                    <div class="chart-controls">
+                        <select id="period-selector">
+                            <option value="6">過去6ヶ月</option>
+                            <option value="12">過去12ヶ月</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- データテーブル -->
+        <div class="data-table-section">
+            <div class="table-header">
+                <h3>クラス別詳細データ</h3>
+                <div class="table-controls">
+                    <input type="text" id="search-input" placeholder="園児名で検索...">
+                    <select id="class-filter">
+                        <option value="">全クラス</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="student-data-table">
+                    <thead>
+                        <tr>
+                            <th>学生ID</th>
+                            <th>氏名</th>
+                            <th>クラス</th>
+                            <th>保育タイプ</th>
+                            <th>遅刻回数</th>
+                            <th>早退回数</th>
+                            <th>お迎え遅れ</th>
+                            <th>出席率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-data-tbody">
+                        <!-- データはJavaScriptで動的に挿入 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- レポート生成セクション -->
+        <div class="report-section">
+            <h3>📋 レポート生成</h3>
+            <div class="report-options">
+                <div class="report-option">
+                    <input type="checkbox" id="report-summary" checked>
+                    <label for="report-summary">サマリー統計</label>
+                </div>
+                <div class="report-option">
+                    <input type="checkbox" id="report-attendance" checked>
+                    <label for="report-attendance">出席状況分析</label>
+                </div>
+                <div class="report-option">
+                    <input type="checkbox" id="report-classes" checked>
+                    <label for="report-classes">クラス別レポート</label>
+                </div>
+                <div class="report-option">
+                    <input type="checkbox" id="report-trends">
+                    <label for="report-trends">トレンド分析</label>
+                </div>
+            </div>
+            <div class="report-actions">
+                <button class="report-btn" onclick="generateReport('pdf')">📄 PDFレポート生成</button>
+                <button class="report-btn" onclick="generateReport('excel')">📊 Excelレポート生成</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="analytics.js"></script>
+</body>
+</html>
