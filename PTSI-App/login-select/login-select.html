@@ -12,7 +12,15 @@
     <div class="header">
         <div class="header-content">
             <h1 class="app-title">🏫 PTSI</h1>
-            <p class="app-subtitle">近畿大学付属幼稚園 登降園管理システム</p>
+            <p class="app-subtitle" id="app-subtitle">登降園管理システム</p>
+            <div class="tenant-info" id="tenant-info" style="display: none;">
+                <div class="tenant-badge">
+                    <span class="tenant-name" id="tenant-name"></span>
+                </div>
+                <button class="change-tenant-btn" onclick="changeTenant()">
+                    園を変更する
+                </button>
+            </div>
         </div>
     </div>
 
@@ -25,7 +33,7 @@
         <div class="login-options">
             <!-- 保護者ログイン -->
             <div class="login-option">
-                <div class="option-card parent-login" onclick="goToParentLogin()">
+                <div class="option-card parent-login" onclick="goToParentLogin()" onkeydown="handleKeyPress(event, goToParentLogin)" tabindex="0" role="button">
                     <div class="option-icon">
                         <span class="icon">👨‍👩‍👧‍👦</span>
                     </div>
@@ -47,7 +55,7 @@
 
             <!-- 運営側ログイン -->
             <div class="login-option">
-                <div class="option-card admin-login" onclick="goToAdminLogin()">
+                <div class="option-card admin-login" onclick="goToAdminLogin()" onkeydown="handleKeyPress(event, goToAdminLogin)" tabindex="0" role="button">
                     <div class="option-icon">
                         <span class="icon">🏫</span>
                     </div>

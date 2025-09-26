@@ -1,0 +1,76 @@
+{
+  "tenantId": "midori-hoikuen",
+  "name": "みどり保育園",
+  "description": "緑に囲まれた環境重視の保育園。自然体験と環境教育に力を入れています。",
+  "theme": "green",
+  "status": "active",
+  "icon": "🌿",
+  "settings": {
+    "timezone": "Asia/Tokyo",
+    "currency": "JPY",
+    "dateFormat": "YYYY-MM-DD",
+    "language": "ja"
+  },
+  "features": {
+    "chat": true,
+    "reservations": true,
+    "reports": true,
+    "customPricing": true
+  },
+  "pricing": {
+    "type1": {
+      "name": "遅刻届",
+      "basePrice": 0,
+      "timeSlots": {
+        "9to10": { "price": 0, "label": "9:00-10:00" },
+        "10to11": { "price": 0, "label": "10:00-11:00" }
+      }
+    },
+    "type2": {
+      "name": "早退届",
+      "basePrice": 0,
+      "timeSlots": {
+        "15to16": { "price": 0, "label": "15:00-16:00" },
+        "16to17": { "price": 0, "label": "16:00-17:00" }
+      }
+    },
+    "type3": {
+      "name": "自然体験保育",
+      "basePrice": 700,
+      "timeSlots": {
+        "1": { "price": 500, "label": "森のお散歩（2時間）" },
+        "2": { "price": 700, "label": "畑仕事体験（半日）" },
+        "3": { "price": 1000, "label": "キャンプ体験（1日）" }
+      }
+    },
+    "type4": {
+      "name": "エコ延長保育",
+      "basePrice": 600,
+      "timeSlots": {
+        "1": { "price": 300, "label": "18:00まで" },
+        "2": { "price": 600, "label": "19:00まで" },
+        "3": { "price": 900, "label": "20:00まで" }
+      }
+    }
+  },
+  "chatSettings": {
+    "enableParentChat": true,
+    "enableStaffChat": true,
+    "enableAnonymous": false,
+    "moderationEnabled": false,
+    "allowFileUpload": true,
+    "maxMessageLength": 1200
+  },
+  "classes": [
+    { "id": "forest", "name": "もりぐみ", "ageGroup": "5歳児", "capacity": 18 },
+    { "id": "river", "name": "かわぐみ", "ageGroup": "4歳児", "capacity": 16 },
+    { "id": "field", "name": "のはらぐみ", "ageGroup": "3歳児", "capacity": 14 }
+  ],
+  "contact": {
+    "phone": "04-2345-6789",
+    "email": "nature@midori-hoikuen.jp",
+    "address": "埼玉県所沢市みどり野1-2-3"
+  },
+  "createdAt": "2024-12-01T00:00:00Z",
+  "updatedAt": "2024-12-01T00:00:00Z"
+}

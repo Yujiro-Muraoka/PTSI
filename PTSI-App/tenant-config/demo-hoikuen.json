@@ -1,0 +1,83 @@
+{
+  "tenantId": "demo-hoikuen",
+  "name": "デモ保育園",
+  "description": "システムテスト用のデモ保育園です。各種機能をお試しいただけます。",
+  "theme": "blue",
+  "status": "active",
+  "icon": "🌸",
+  "settings": {
+    "timezone": "Asia/Tokyo",
+    "currency": "JPY",
+    "dateFormat": "YYYY-MM-DD",
+    "language": "ja"
+  },
+  "features": {
+    "chat": true,
+    "reservations": true,
+    "reports": true,
+    "customPricing": false
+  },
+  "pricing": {
+    "type1": {
+      "name": "遅刻申請",
+      "basePrice": 0,
+      "timeSlots": {
+        "9to10": { "price": 0, "label": "9:00-10:00" },
+        "10to11": { "price": 0, "label": "10:00-11:00" },
+        "11to12": { "price": 0, "label": "11:00-12:00" },
+        "12to13": { "price": 0, "label": "12:00-13:00" }
+      }
+    },
+    "type2": {
+      "name": "早退申請",
+      "basePrice": 0,
+      "timeSlots": {
+        "13to14": { "price": 0, "label": "13:00-14:00" },
+        "14to15": { "price": 0, "label": "14:00-15:00" },
+        "15to16": { "price": 0, "label": "15:00-16:00" },
+        "16to17": { "price": 0, "label": "16:00-17:00" }
+      }
+    },
+    "type3": {
+      "name": "預かり保育",
+      "basePrice": 500,
+      "timeSlots": {
+        "1": { "price": 300, "label": "1時間" },
+        "2": { "price": 500, "label": "2時間" },
+        "3": { "price": 700, "label": "3時間" },
+        "4": { "price": 900, "label": "4時間以上" }
+      }
+    },
+    "type4": {
+      "name": "延長保育",
+      "basePrice": 800,
+      "timeSlots": {
+        "1": { "price": 400, "label": "30分延長" },
+        "2": { "price": 800, "label": "1時間延長" },
+        "3": { "price": 1200, "label": "1時間30分延長" },
+        "4": { "price": 1600, "label": "2時間延長" }
+      }
+    }
+  },
+  "chatSettings": {
+    "enableParentChat": true,
+    "enableStaffChat": true,
+    "enableAnonymous": false,
+    "moderationEnabled": true,
+    "allowFileUpload": true,
+    "maxMessageLength": 1000
+  },
+  "classes": [
+    { "id": "lion", "name": "ライオン組", "ageGroup": "5歳児", "capacity": 20 },
+    { "id": "elephant", "name": "ぞう組", "ageGroup": "4歳児", "capacity": 20 },
+    { "id": "chick", "name": "ひよこ組", "ageGroup": "3歳児", "capacity": 15 },
+    { "id": "duck", "name": "あひる組", "ageGroup": "2歳児", "capacity": 12 }
+  ],
+  "contact": {
+    "phone": "03-1234-5678",
+    "email": "info@demo-hoikuen.example.com",
+    "address": "東京都渋谷区デモ町1-2-3"
+  },
+  "createdAt": "2024-12-01T00:00:00Z",
+  "updatedAt": "2024-12-01T00:00:00Z"
+}

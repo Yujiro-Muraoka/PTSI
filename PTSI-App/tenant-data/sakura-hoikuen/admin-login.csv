@@ -1,0 +1,5 @@
+admin-id,password,name,role
+sakura001,sakura123,園長先生,principal
+sakura002,sakura123,主任保育士,head_teacher
+sakura003,sakura123,さくら組担任,teacher_sakura
+sakura004,sakura123,もみじ組担任,teacher_momiji

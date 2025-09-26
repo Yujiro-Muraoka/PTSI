@@ -66,8 +66,19 @@ app.get('/check-reservation', (req, res) => {
   res.sendFile(path.join(__dirname, 'check-reservation', 'check-reservation.html'));
 });
 
-// 新しいログインシステムのルーティング
+// 新しいログインシステムのルーティング（テナント対応）
 app.get('/login-select', (req, res) => {
+  const tenantId = req.query.tenant;
+  if (!tenantId) {
+    return res.redirect('/tenant-selection');
+  }
+  
+  // テナント設定を確認
+  const tenantConfig = getTenantConfig(tenantId);
+  if (!tenantConfig) {
+    return res.redirect('/tenant-selection?error=tenant_not_found');
+  }
+  
   res.sendFile(path.join(__dirname, 'login-select', 'login-select.html'));
 });
 
@@ -79,9 +90,28 @@ app.get('/admin-login-new', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-login-new', 'admin-login-new.html'));
 });
 
-// 従来のログインページ（管理者用として維持）
+// テナント対応ログインページ
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login', 'login.html'));
+  const tenantId = req.query.tenant;
+  const loginType = req.query.type; // 'parent' or 'admin'
+  
+  if (!tenantId) {
+    // テナントが指定されていない場合はテナント選択にリダイレクト
+    return res.redirect('/tenant-selection');
+  }
+  
+  // テナントの存在確認
+  if (!fs.existsSync(path.join(__dirname, 'tenant-config', `${tenantId}.json`))) {
+    return res.redirect('/tenant-selection?error=tenant_not_found');
+  }
+  
+  // ログインタイプに応じて適切なページを返す
+  if (loginType === 'admin') {
+    res.sendFile(path.join(__dirname, 'login', 'login.html'));
+  } else {
+    // デフォルトまたは保護者ログインの場合
+    res.sendFile(path.join(__dirname, 'login', 'login.html'));
+  }
 });
 
 app.get('/reservation', (req, res) => {
@@ -104,9 +134,17 @@ app.get('/reservation-settings', (req, res) => {
   res.sendFile(path.join(__dirname, 'reservation-settings', 'reservation-settings.html'));
 });
 
-// ルートパスへのアクセス時にログイン選択ページにリダイレクトする
+// 保育園選択システムの静的ファイル配信
+app.use('/tenant-selection', express.static(path.join(__dirname, 'tenant-selection')));
+
+// 保育園選択ページのルーティング
+app.get('/tenant-selection', (req, res) => {
+  res.sendFile(path.join(__dirname, 'tenant-selection', 'tenant-selection.html'));
+});
+
+// ルートパスへのアクセス時に保育園選択ページにリダイレクトする
 app.get('/', (req, res) => {
-  res.redirect('/login-select');
+  res.redirect('/tenant-selection');
 });
 
 
@@ -249,11 +287,21 @@ app.post('/passwordAuthentication', (req, res) => {
 });
 
 /**
- * 統一ログイン認証API
+ * 統一ログイン認証API（テナント対応）
  * 保護者と管理者の両方のログインを処理
  */
 app.post('/login', (req, res) => {
-  const { adminId, adminPassword, studentId, password, loginType } = req.body;
+  const { adminId, adminPassword, studentId, password, loginType, tenantId } = req.body;
+  
+  // テナントIDの検証
+  if (!tenantId) {
+    return res.status(400).json({ success: false, message: '保育園が選択されていません。' });
+  }
+  
+  const tenantConfig = getTenantConfig(tenantId);
+  if (!tenantConfig) {
+    return res.status(400).json({ success: false, message: '指定された保育園が見つかりません。' });
+  }
   
   if (loginType === 'admin') {
     // 管理者ログイン処理
@@ -261,10 +309,10 @@ app.post('/login', (req, res) => {
       return res.status(400).json({ success: false, message: '管理者IDとパスワードを入力してください。' });
     }
     
-    console.log(`Admin login attempt for adminId: ${adminId}`);
+    console.log(`Admin login attempt for adminId: ${adminId} at tenant: ${tenantId}`);
 
-    // admin-login.csvからデータを読み込む
-    const adminLoginPath = path.join(__dirname, 'DB', 'admin-login.csv');
+    // テナント別admin-login.csvからデータを読み込む
+    const adminLoginPath = getTenantDataPath(tenantId, 'admin-login.csv');
     fs.readFile(adminLoginPath, 'utf8', (err, data) => {
         if (err) {
             console.error('管理者ログインファイル読み込みエラー:', err);
@@ -278,14 +326,18 @@ app.post('/login', (req, res) => {
             const adminData = {
                 id: admin[0],
                 name: admin[2],
-                role: admin[3]
+                role: admin[3],
+                tenantId: tenantId,
+                tenantName: tenantConfig.name
             };
             res.json({ 
                 success: true, 
                 user: adminData,
                 adminName: adminData.name,
                 adminRole: adminData.role,
-                userType: 'admin'
+                userType: 'admin',
+                tenantId: tenantId,
+                tenantName: tenantConfig.name
             });
         } else {
             res.status(401).json({ success: false, message: '管理者IDまたはパスワードが正しくありません。' });
@@ -297,9 +349,9 @@ app.post('/login', (req, res) => {
       return res.status(400).json({ success: false, message: '学籍番号とパスワードを入力してください。' });
     }
     
-    console.log(`Parent login attempt for studentId: ${studentId}`);
+    console.log(`Parent login attempt for studentId: ${studentId} at tenant: ${tenantId}`);
 
-    const loginPath = path.join(__dirname, 'DB', 'login.csv');
+    const loginPath = getTenantDataPath(tenantId, 'login.csv');
     fs.readFile(loginPath, 'utf8', (err, data) => {
         if (err) {
             console.error('保護者ログインファイル読み込みエラー:', err);
@@ -314,9 +366,13 @@ app.post('/login', (req, res) => {
                 success: true,
                 user: {
                   id: user[0],
-                  name: user[2] || '保護者'
+                  name: user[2] || '保護者',
+                  tenantId: tenantId,
+                  tenantName: tenantConfig.name
                 },
-                userType: 'parent'
+                userType: 'parent',
+                tenantId: tenantId,
+                tenantName: tenantConfig.name
             });
         } else {
             res.status(401).json({ success: false, message: 'パスワードが正しくありません。' });
@@ -805,6 +861,222 @@ app.post('/api/admin-token', (req, res) => {
     expiresIn: '24h'
   });
 });
+
+// =============================================================================
+// マルチテナント API エンドポイント
+// =============================================================================
+
+/**
+ * 保育園一覧取得API
+ */
+app.get('/api/tenants', (req, res) => {
+  try {
+    const tenantsPath = path.join(__dirname, 'DB', 'tenants.csv');
+    
+    if (!fs.existsSync(tenantsPath)) {
+      return res.json({ success: true, tenants: [] });
+    }
+    
+    const tenantsData = fs.readFileSync(tenantsPath, 'utf8');
+    const tenantRows = tenantsData.split('\n').filter(row => row.trim()).slice(1);
+    
+    const tenants = tenantRows.map(row => {
+      const [id, name, description, theme, status, icon, studentCount, classCount, staffCount, createdDate] = row.split(',');
+      return {
+        id: id,
+        name: name,
+        description: description,
+        theme: theme,
+        status: status,
+        icon: icon,
+        studentCount: parseInt(studentCount) || 0,
+        classCount: parseInt(classCount) || 0,
+        staffCount: parseInt(staffCount) || 0,
+        createdDate: createdDate
+      };
+    });
+    
+    console.log(`保育園一覧取得: ${tenants.length}園`);
+    res.json({ success: true, tenants: tenants });
+  } catch (error) {
+    console.error('保育園一覧取得エラー:', error);
+    res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+  }
+});
+
+/**
+ * 保育園詳細情報取得API
+ */
+app.get('/api/tenants/:tenantId', (req, res) => {
+  try {
+    const tenantId = req.params.tenantId;
+    const configPath = path.join(__dirname, 'tenant-config', `${tenantId}.json`);
+    
+    if (!fs.existsSync(configPath)) {
+      return res.status(404).json({ success: false, message: '指定された保育園が見つかりません。' });
+    }
+    
+    const configData = fs.readFileSync(configPath, 'utf8');
+    const tenantConfig = JSON.parse(configData);
+    
+    console.log(`保育園詳細取得: ${tenantId}`);
+    res.json({ success: true, tenant: tenantConfig });
+  } catch (error) {
+    console.error('保育園詳細取得エラー:', error);
+    res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+  }
+});
+
+/**
+ * 新規保育園作成API
+ */
+app.post('/api/tenants/create', (req, res) => {
+  try {
+    const { tenantId, tenantName, description, themeColor, adminId, adminPassword, adminName } = req.body;
+    
+    // バリデーション
+    if (!tenantId || !tenantName || !adminId || !adminPassword || !adminName) {
+      return res.status(400).json({ success: false, message: '必須項目が不足しています。' });
+    }
+    
+    // 保育園IDの重複チェック
+    const tenantsPath = path.join(__dirname, 'DB', 'tenants.csv');
+    if (fs.existsSync(tenantsPath)) {
+      const tenantsData = fs.readFileSync(tenantsPath, 'utf8');
+      if (tenantsData.includes(tenantId)) {
+        return res.status(409).json({ success: false, message: 'この保育園IDは既に使用されています。' });
+      }
+    }
+    
+    // テナントディレクトリ作成
+    const tenantDataDir = path.join(__dirname, 'tenant-data', tenantId);
+    if (!fs.existsSync(tenantDataDir)) {
+      fs.mkdirSync(tenantDataDir, { recursive: true });
+    }
+    
+    // 保育園設定ファイル作成
+    const tenantConfig = {
+      tenantId: tenantId,
+      name: tenantName,
+      description: description || '',
+      theme: themeColor || 'blue',
+      status: 'active',
+      icon: '🏫',
+      settings: {
+        timezone: 'Asia/Tokyo',
+        currency: 'JPY',
+        dateFormat: 'YYYY-MM-DD',
+        language: 'ja'
+      },
+      features: {
+        chat: true,
+        reservations: true,
+        reports: true,
+        customPricing: false
+      },
+      pricing: {
+        type1: { name: '遅刻申請', basePrice: 0, timeSlots: {} },
+        type2: { name: '早退申請', basePrice: 0, timeSlots: {} },
+        type3: { name: '預かり保育', basePrice: 500, timeSlots: {} },
+        type4: { name: '延長保育', basePrice: 800, timeSlots: {} }
+      },
+      chatSettings: {
+        enableParentChat: true,
+        enableStaffChat: true,
+        enableAnonymous: false,
+        moderationEnabled: true,
+        allowFileUpload: true,
+        maxMessageLength: 1000
+      },
+      classes: [],
+      contact: {
+        phone: '',
+        email: '',
+        address: ''
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    const configPath = path.join(__dirname, 'tenant-config', `${tenantId}.json`);
+    fs.writeFileSync(configPath, JSON.stringify(tenantConfig, null, 2));
+    
+    // 初期管理者データ作成
+    const adminData = `admin-id,password,name,role\n${adminId},${adminPassword},${adminName},principal\n`;
+    fs.writeFileSync(path.join(tenantDataDir, 'admin-login.csv'), adminData);
+    
+    // 空のデータファイル作成
+    fs.writeFileSync(path.join(tenantDataDir, 'login.csv'), 'student-id,password\n');
+    fs.writeFileSync(path.join(tenantDataDir, 'student-info.csv'), 'student-id,name,type,late,early,late-pick-up,class\n');
+    fs.writeFileSync(path.join(tenantDataDir, 'reservation.csv'), '');
+    fs.writeFileSync(path.join(tenantDataDir, 'reservation-settings.csv'), '');
+    
+    // テナント一覧に追加
+    const tenantEntry = `${tenantId},${tenantName},"${description}",${themeColor},active,🏫,0,0,1,${new Date().toISOString().split('T')[0]}\n`;
+    fs.appendFileSync(tenantsPath, tenantEntry);
+    
+    console.log(`新規保育園作成: ${tenantId} - ${tenantName}`);
+    res.json({ success: true, message: '保育園が正常に作成されました。' });
+  } catch (error) {
+    console.error('保育園作成エラー:', error);
+    res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+  }
+});
+
+/**
+ * テナント設定更新API
+ */
+app.post('/api/tenants/:tenantId/settings', (req, res) => {
+  try {
+    const tenantId = req.params.tenantId;
+    const settings = req.body;
+    
+    const configPath = path.join(__dirname, 'tenant-config', `${tenantId}.json`);
+    
+    if (!fs.existsSync(configPath)) {
+      return res.status(404).json({ success: false, message: '指定された保育園が見つかりません。' });
+    }
+    
+    const configData = fs.readFileSync(configPath, 'utf8');
+    const tenantConfig = JSON.parse(configData);
+    
+    // 設定を更新
+    tenantConfig.settings = { ...tenantConfig.settings, ...settings };
+    tenantConfig.updatedAt = new Date().toISOString();
+    
+    fs.writeFileSync(configPath, JSON.stringify(tenantConfig, null, 2));
+    
+    console.log(`保育園設定更新: ${tenantId}`);
+    res.json({ success: true, message: '設定が更新されました。' });
+  } catch (error) {
+    console.error('保育園設定更新エラー:', error);
+    res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+  }
+});
+
+/**
+ * テナント別データパス取得ヘルパー関数
+ */
+function getTenantDataPath(tenantId, filename) {
+  return path.join(__dirname, 'tenant-data', tenantId, filename);
+}
+
+/**
+ * テナント設定取得ヘルパー関数
+ */
+function getTenantConfig(tenantId) {
+  try {
+    const configPath = path.join(__dirname, 'tenant-config', `${tenantId}.json`);
+    if (fs.existsSync(configPath)) {
+      const configData = fs.readFileSync(configPath, 'utf8');
+      return JSON.parse(configData);
+    }
+    return null;
+  } catch (error) {
+    console.error('テナント設定取得エラー:', error);
+    return null;
+  }
+}
 
 // エラーハンドリングミドルウェア
 app.use((err, req, res, next) => {

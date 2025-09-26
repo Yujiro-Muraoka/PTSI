@@ -1,0 +1,80 @@
+{
+  "tenantId": "sakura-hoikuen",
+  "name": "さくら保育園",
+  "description": "桜が美しい自然豊かな保育園。季節の変化を大切にした保育を実践しています。",
+  "theme": "pink",
+  "status": "active",
+  "icon": "🌸",
+  "settings": {
+    "timezone": "Asia/Tokyo",
+    "currency": "JPY",
+    "dateFormat": "YYYY-MM-DD",
+    "language": "ja"
+  },
+  "features": {
+    "chat": true,
+    "reservations": true,
+    "reports": true,
+    "customPricing": true
+  },
+  "pricing": {
+    "type1": {
+      "name": "遅刻連絡",
+      "basePrice": 0,
+      "timeSlots": {
+        "9to10": { "price": 0, "label": "9:00-10:00" },
+        "10to11": { "price": 0, "label": "10:00-11:00" },
+        "11to12": { "price": 0, "label": "11:00-12:00" }
+      }
+    },
+    "type2": {
+      "name": "お迎え変更",
+      "basePrice": 0,
+      "timeSlots": {
+        "14to15": { "price": 0, "label": "14:00-15:00" },
+        "15to16": { "price": 0, "label": "15:00-16:00" },
+        "16to17": { "price": 0, "label": "16:00-17:00" }
+      }
+    },
+    "type3": {
+      "name": "一時保育",
+      "basePrice": 600,
+      "timeSlots": {
+        "1": { "price": 400, "label": "半日（4時間）" },
+        "2": { "price": 600, "label": "1日（8時間）" },
+        "3": { "price": 800, "label": "延長込み" }
+      }
+    },
+    "type4": {
+      "name": "特別延長保育",
+      "basePrice": 1000,
+      "timeSlots": {
+        "1": { "price": 500, "label": "19:00まで" },
+        "2": { "price": 1000, "label": "20:00まで" },
+        "3": { "price": 1500, "label": "21:00まで" }
+      }
+    }
+  },
+  "chatSettings": {
+    "enableParentChat": true,
+    "enableStaffChat": true,
+    "enableAnonymous": false,
+    "moderationEnabled": true,
+    "allowFileUpload": true,
+    "maxMessageLength": 800
+  },
+  "classes": [
+    { "id": "sakura", "name": "さくら組", "ageGroup": "5歳児", "capacity": 25 },
+    { "id": "momiji", "name": "もみじ組", "ageGroup": "4歳児", "capacity": 22 },
+    { "id": "tsubaki", "name": "つばき組", "ageGroup": "3歳児", "capacity": 20 },
+    { "id": "sumire", "name": "すみれ組", "ageGroup": "2歳児", "capacity": 15 },
+    { "id": "tanpopo", "name": "たんぽぽ組", "ageGroup": "1歳児", "capacity": 12 }
+  ],
+  "contact": {
+    "phone": "045-123-4567",
+    "email": "info@sakura-hoikuen.jp",
+    "address": "神奈川県横浜市さくら区花見町2-3-4"
+  },
+  "createdAt": "2024-12-01T00:00:00Z",
+  "updatedAt": "2024-12-01T00:00:00Z"
+}

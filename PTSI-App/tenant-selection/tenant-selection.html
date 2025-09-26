@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保育園選択 - PTSI</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="tenant-selection.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <div class="header">
+            <div class="logo-section">
+                <h1 class="main-title">🌈 PTSI</h1>
+                <p class="subtitle">保育園統合管理システム</p>
+            </div>
+            <div class="version-info">
+                <span class="version-badge">v3.0.0 Multi-Tenant</span>
+            </div>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <div class="selection-container">
+                <div class="welcome-section">
+                    <h2 class="welcome-title">ご利用する保育園を選択してください</h2>
+                    <p class="welcome-description">
+                        お子様が通われている保育園、またはご勤務先の保育園を選択してログインページに進んでください。
+                    </p>
+                </div>
+
+                <!-- 保育園一覧 -->
+                <div class="tenant-grid" id="tenant-grid">
+                    <!-- 動的に読み込まれる保育園一覧 -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>保育園一覧を読み込み中...</p>
+                    </div>
+                </div>
+
+                <!-- 新規保育園登録ボタン（管理者用） -->
+                <div class="admin-actions">
+                    <button class="admin-btn" onclick="showNewTenantDialog()">
+                        <span class="btn-icon">🏫</span>
+                        新規保育園を登録
+                    </button>
+                    <button class="admin-btn secondary" onclick="showTenantManagement()">
+                        <span class="btn-icon">⚙️</span>
+                        保育園管理
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <div class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>サポート</h4>
+                    <p>システムでお困りの場合は、各保育園の管理者までお問い合わせください。</p>
+                </div>
+                <div class="footer-section">
+                    <h4>システム情報</h4>
+                    <p>PTSI Multi-Tenant System</p>
+                    <p>© 2024 Yujiro Muraoka</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新規保育園登録ダイアログ -->
+    <div id="new-tenant-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-content">
+            <div class="dialog-header">
+                <h3>🏫 新規保育園登録</h3>
+                <button class="dialog-close" onclick="hideNewTenantDialog()">×</button>
+            </div>
+            <div class="dialog-body">
+                <form id="new-tenant-form">
+                    <div class="form-group">
+                        <label for="tenant-id">保育園ID *</label>
+                        <input type="text" id="tenant-id" name="tenantId" required 
+                               placeholder="例: sakura-hoikuen" pattern="[a-z0-9-]+">
+                        <small>半角英数字とハイフンのみ使用可能</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-name">保育園名 *</label>
+                        <input type="text" id="tenant-name" name="tenantName" required 
+                               placeholder="例: さくら保育園">
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-description">説明</label>
+                        <textarea id="tenant-description" name="description" 
+                                  placeholder="保育園の特色や所在地など..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenant-color">テーマカラー</label>
+                        <select id="tenant-color" name="themeColor">
+                            <option value="blue">ブルー（デフォルト）</option>
+                            <option value="green">グリーン</option>
+                            <option value="pink">ピンク</option>
+                            <option value="orange">オレンジ</option>
+                            <option value="purple">パープル</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-id">初期管理者ID *</label>
+                        <input type="text" id="admin-id" name="adminId" required 
+                               placeholder="例: admin001">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-password">初期管理者パスワード *</label>
+                        <input type="password" id="admin-password" name="adminPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-name">初期管理者名 *</label>
+                        <input type="text" id="admin-name" name="adminName" required 
+                               placeholder="例: 園長先生">
+                    </div>
+                </form>
+            </div>
+            <div class="dialog-actions">
+                <button type="button" class="btn secondary" onclick="hideNewTenantDialog()">
+                    キャンセル
+                </button>
+                <button type="button" class="btn primary" onclick="createNewTenant()">
+                    <span class="btn-icon">🏫</span>
+                    保育園を作成
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 保育園管理ダイアログ -->
+    <div id="tenant-management-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-content large">
+            <div class="dialog-header">
+                <h3>⚙️ 保育園管理</h3>
+                <button class="dialog-close" onclick="hideTenantManagement()">×</button>
+            </div>
+            <div class="dialog-body">
+                <div class="management-tabs">
+                    <button class="tab-btn active" onclick="showManagementTab('overview')">概要</button>
+                    <button class="tab-btn" onclick="showManagementTab('settings')">設定</button>
+                    <button class="tab-btn" onclick="showManagementTab('billing')">料金</button>
+                </div>
+                <div id="management-content" class="management-content">
+                    <!-- 動的コンテンツ -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="tenant-selection.js"></script>
+</body>
+</html>

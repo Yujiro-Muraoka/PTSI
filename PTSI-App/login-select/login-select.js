@@ -1,31 +1,148 @@
 /**
- * ログイン選択ページのJavaScript
+ * ログイン選択ページのJavaScript（マルチテナント対応）
  */
+
+let currentTenant = null;
+
+/**
+ * ページ読み込み時の初期化
+ */
+window.onload = function() {
+    loadTenantInfo();
+};
+
+/**
+ * テナント情報を読み込み
+ */
+async function loadTenantInfo() {
+    // URLパラメータからテナントIDを取得
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenantId = urlParams.get('tenant');
+    
+    if (!tenantId) {
+        // テナントが指定されていない場合は保育園選択に戻る
+        window.location.href = '/tenant-selection';
+        return;
+    }
+    
+    try {
+        // テナント情報を取得
+        const response = await fetch(`/api/tenants/${tenantId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            currentTenant = result.tenant;
+            updatePageWithTenantInfo();
+        } else {
+            console.error('テナント情報取得エラー:', result.message);
+            window.location.href = '/tenant-selection?error=tenant_not_found';
+        }
+    } catch (error) {
+        console.error('テナント情報取得エラー:', error);
+        window.location.href = '/tenant-selection?error=server_error';
+    }
+}
+
+/**
+ * テナント情報でページを更新
+ */
+function updatePageWithTenantInfo() {
+    if (!currentTenant) return;
+    
+    // ページタイトルを更新
+    document.title = `ログイン選択 - ${currentTenant.name}`;
+    
+    // 保育園名を表示
+    const tenantNameElement = document.querySelector('.tenant-name');
+    if (tenantNameElement) {
+        tenantNameElement.textContent = currentTenant.name;
+    } else {
+        // 保育園名表示要素がない場合は追加
+        const header = document.querySelector('.header');
+        if (header) {
+            const tenantInfo = document.createElement('div');
+            tenantInfo.className = 'tenant-info';
+            tenantInfo.innerHTML = `
+                <div class="tenant-icon">${currentTenant.icon || '🏫'}</div>
+                <div class="tenant-details">
+                    <h2 class="tenant-name">${currentTenant.name}</h2>
+                    <p class="tenant-description">${currentTenant.description || ''}</p>
+                </div>
+            `;
+            header.appendChild(tenantInfo);
+        }
+    }
+    
+    // CSS変数でテーマカラーを設定
+    if (currentTenant.theme) {
+        document.documentElement.setAttribute('data-theme', currentTenant.theme);
+    }
+}
 
 /**
  * 保護者ログインページに遷移
  */
 function goToParentLogin() {
+    if (!currentTenant) {
+        console.error('テナント情報が取得されていません');
+        return;
+    }
+    
     // フェードアウト効果を追加
     document.body.style.opacity = '0.8';
     document.body.style.transition = 'opacity 0.3s ease';
     
     setTimeout(() => {
-        window.location.href = '/parent-login';
+        window.location.href = `/login?tenant=${currentTenant.tenantId}&type=parent`;
     }, 300);
 }
 
 /**
  * 運営側ログインページに遷移
  */
-function navigateToAdmin() {
+function goToAdminLogin() {
+    if (!currentTenant) {
+        console.error('テナント情報が取得されていません');
+        return;
+    }
+    
     // フェードアウト効果
     document.body.style.transition = 'opacity 0.3s ease';
     document.body.style.opacity = '0.8';
     
     setTimeout(() => {
-        window.location.href = '/admin-login-new';
+        window.location.href = `/login?tenant=${currentTenant.tenantId}&type=admin`;
     }, 300);
+}
+
+/**
+ * 保育園選択に戻る
+ */
+function goBackToTenantSelection() {
+    window.location.href = '/tenant-selection';
+}
+
+/**
+ * 園を変更する（ヘッダーボタン用）
+ */
+function changeTenant() {
+    // 確認ダイアログを表示
+    if (confirm('園を変更すると現在の選択がリセットされます。続行しますか？')) {
+        // ローカルストレージをクリア
+        localStorage.removeItem('selectedTenantId');
+        // テナント選択ページに戻る
+        window.location.href = '/tenant-selection';
+    }
+}
+
+/**
+ * キーボードイベントハンドラー
+ */
+function handleKeyPress(event, callback) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        callback();
+    }
 }
 
 /**

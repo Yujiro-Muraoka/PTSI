@@ -1,0 +1,6 @@
+student-id,name,type,late,early,late-pick-up,class
+30001,田中桜子,一般,1,0,0,sakura
+30002,佐藤楓太,一般,0,1,1,momiji
+30003,鈴木椿花,短時間児,2,0,0,tsubaki
+30004,高橋菫,一般,0,0,1,sumire
+30005,伊藤蒲公英,一般,1,1,0,tanpopo

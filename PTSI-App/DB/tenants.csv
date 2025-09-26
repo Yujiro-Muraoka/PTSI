@@ -1,0 +1,4 @@
+tenant-id,name,description,theme,status,icon,student-count,class-count,staff-count,created-date
+demo-hoikuen,デモ保育園,システムテスト用のデモ保育園です,blue,active,🌸,45,4,8,2024-12-01
+sakura-hoikuen,さくら保育園,桜が美しい自然豊かな保育園,pink,active,🌸,62,5,12,2024-12-01
+midori-hoikuen,みどり保育園,緑に囲まれた環境重視の保育園,green,active,🌿,38,3,7,2024-12-01
