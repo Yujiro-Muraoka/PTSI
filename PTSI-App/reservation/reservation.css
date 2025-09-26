@@ -252,3 +252,30 @@
         margin-left: 15px;
     }
 }
+
+/* 受付停止メッセージのスタイル */
+.no-options {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+    border: 1px solid #f5c6cb;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+    .no-options {
+        font-size: 1.6rem;
+        padding: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .no-options {
+        font-size: 1.4rem;
+        padding: 1rem;
+    }
+}

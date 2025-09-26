@@ -55,6 +55,7 @@ app.use('/manuals', express.static(path.join(__dirname, 'manuals')));
 app.use('/login-select', express.static(path.join(__dirname, 'login-select')));
 app.use('/parent-login', express.static(path.join(__dirname, 'parent-login')));
 app.use('/admin-login-new', express.static(path.join(__dirname, 'admin-login-new')));
+app.use('/reservation-settings', express.static(path.join(__dirname, 'reservation-settings')));
 
 // 各ディレクトリ内の唯一のHTMLファイルを直接開く
 app.get('/chart', (req, res) => {
@@ -97,6 +98,10 @@ app.get('/admin-login', (req, res) => {
 
 app.get('/admin-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-dashboard', 'admin-dashboard.html'));
+});
+
+app.get('/reservation-settings', (req, res) => {
+  res.sendFile(path.join(__dirname, 'reservation-settings', 'reservation-settings.html'));
 });
 
 // ルートパスへのアクセス時にログイン選択ページにリダイレクトする
@@ -1049,6 +1054,227 @@ app.get('/admin/export-report', (req, res) => {
     res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
 });
+
+
+/**
+ * 予約設定関連のAPI
+ */
+
+/**
+ * 指定日の予約設定を取得
+ */
+app.get('/api/reservation-settings/:date', (req, res) => {
+  try {
+    const targetDate = req.params.date;
+    const settingsPath = path.join(__dirname, 'DB', 'reservation-settings.csv');
+    
+    // CSVファイルが存在しない場合は作成
+    if (!fs.existsSync(settingsPath)) {
+      const headers = 'date,category,enabled,options\n';
+      fs.writeFileSync(settingsPath, headers, 'utf8');
+    }
+    
+    const csvData = fs.readFileSync(settingsPath, 'utf8');
+    const lines = csvData.split('\n').filter(line => line.trim() !== '');
+    
+    // 指定日の設定を検索
+    const dateSettings = {
+      date: targetDate,
+      lateArrival: { enabled: false, options: [] },
+      earlyDeparture: { enabled: false, options: [] },
+      childcare: { enabled: false, options: [] },
+      extendedCare: { enabled: false, options: [] }
+    };
+    
+    let foundSettings = false;
+    
+    for (let i = 1; i < lines.length; i++) { // ヘッダーをスキップ
+      const line = lines[i];
+      const columns = parseCSVLine(line);
+      
+      if (columns.length >= 4 && columns[0] === targetDate) {
+        foundSettings = true;
+        const category = columns[1];
+        const enabled = columns[2] === 'true';
+        const options = columns[3] ? columns[3].split(',').map(opt => opt.trim().replace(/"/g, '')) : [];
+        
+        switch (category) {
+          case 'lateArrival':
+            dateSettings.lateArrival = { enabled, options };
+            break;
+          case 'earlyDeparture':
+            dateSettings.earlyDeparture = { enabled, options };
+            break;
+          case 'childcare':
+            dateSettings.childcare = { enabled, options };
+            break;
+          case 'extendedCare':
+            dateSettings.extendedCare = { enabled, options };
+            break;
+        }
+      }
+    }
+    
+    if (foundSettings) {
+      res.json(dateSettings);
+    } else {
+      res.status(404).json({ error: '指定された日付の設定が見つかりません' });
+    }
+    
+  } catch (error) {
+    console.error('予約設定取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * 予約設定を保存
+ */
+app.post('/api/reservation-settings', (req, res) => {
+  try {
+    const settings = req.body;
+    const settingsPath = path.join(__dirname, 'DB', 'reservation-settings.csv');
+    
+    // CSVファイルが存在しない場合は作成
+    if (!fs.existsSync(settingsPath)) {
+      const headers = 'date,category,enabled,options\n';
+      fs.writeFileSync(settingsPath, headers, 'utf8');
+    }
+    
+    const csvData = fs.readFileSync(settingsPath, 'utf8');
+    const lines = csvData.split('\n').filter(line => line.trim() !== '');
+    
+    // 既存の設定を削除
+    const filteredLines = lines.filter(line => {
+      const columns = parseCSVLine(line);
+      return columns.length < 4 || columns[0] !== settings.date;
+    });
+    
+    // 新しい設定を追加
+    const categories = ['lateArrival', 'earlyDeparture', 'childcare', 'extendedCare'];
+    
+    categories.forEach(category => {
+      const categoryData = settings[category];
+      const optionsStr = categoryData.options.length > 0 ? '"' + categoryData.options.join(',') + '"' : '""';
+      const newLine = `${settings.date},${category},${categoryData.enabled},${optionsStr}`;
+      filteredLines.push(newLine);
+    });
+    
+    // CSVファイルに書き戻し
+    const newCsvData = filteredLines.join('\n') + '\n';
+    fs.writeFileSync(settingsPath, newCsvData, 'utf8');
+    
+    console.log(`予約設定保存完了: ${settings.date}`);
+    res.json({ success: true, message: '設定を保存しました' });
+    
+  } catch (error) {
+    console.error('予約設定保存エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * 指定日の利用可能な予約オプションを取得（保護者用）
+ */
+app.get('/api/reservation-options/:date', (req, res) => {
+  try {
+    const targetDate = req.params.date;
+    const settingsPath = path.join(__dirname, 'DB', 'reservation-settings.csv');
+    
+    if (!fs.existsSync(settingsPath)) {
+      // デフォルト設定を返す
+      res.json(getDefaultReservationOptions());
+      return;
+    }
+    
+    const csvData = fs.readFileSync(settingsPath, 'utf8');
+    const lines = csvData.split('\n').filter(line => line.trim() !== '');
+    
+    const availableOptions = {
+      lateArrival: [],
+      earlyDeparture: [],
+      childcare: [],
+      extendedCare: []
+    };
+    
+    let foundSettings = false;
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      const columns = parseCSVLine(line);
+      
+      if (columns.length >= 4 && columns[0] === targetDate) {
+        foundSettings = true;
+        const category = columns[1];
+        const enabled = columns[2] === 'true';
+        const options = enabled && columns[3] ? columns[3].split(',').map(opt => opt.trim().replace(/"/g, '')) : [];
+        
+        switch (category) {
+          case 'lateArrival':
+            availableOptions.lateArrival = options;
+            break;
+          case 'earlyDeparture':
+            availableOptions.earlyDeparture = options;
+            break;
+          case 'childcare':
+            availableOptions.childcare = options;
+            break;
+          case 'extendedCare':
+            availableOptions.extendedCare = options;
+            break;
+        }
+      }
+    }
+    
+    if (foundSettings) {
+      res.json(availableOptions);
+    } else {
+      // 設定が見つからない場合はデフォルト設定を返す
+      res.json(getDefaultReservationOptions());
+    }
+    
+  } catch (error) {
+    console.error('予約オプション取得エラー:', error);
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
+});
+
+/**
+ * デフォルト予約オプションを取得
+ */
+function getDefaultReservationOptions() {
+  return {
+    lateArrival: ['10時から11時', '11時から12時', '12時から13時', '13時から14時', '14時から15時'],
+    earlyDeparture: ['10時から11時', '11時から12時', '12時から13時', '13時から14時', '14時から15時'],
+    childcare: ['朝預かり (7:30-8:30)', '午後預かり (14:00-18:00)', '一日預かり (7:30-18:00)'],
+    extendedCare: ['18時から19時', '19時から20時', '緊急延長']
+  };
+}
+
+/**
+ * CSV行をパースする簡易関数
+ */
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  result.push(current);
+  return result;
+}
 
 // サーバーを起動
 const port = process.env.PORT || 3000;

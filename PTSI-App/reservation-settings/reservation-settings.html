@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約オプション設定 - PTSI幼稚園管理システム</title>
+    <link rel="stylesheet" href="reservation-settings.css">
+    <link rel="icon" type="image/x-icon" href="../fonts/favicon.ico">
+</head>
+<body>
+    <div class="settings-container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">⚙️</div>
+                    <div class="title-section">
+                        <h1>予約オプション設定</h1>
+                        <p class="subtitle">各日付の受付オプションをカスタマイズ</p>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <button onclick="goToDashboard()" class="nav-btn dashboard-btn">
+                        <span class="btn-icon">📊</span>
+                        ダッシュボード
+                    </button>
+                    <button onclick="logout()" class="nav-btn logout-btn">
+                        <span class="btn-icon">🚪</span>
+                        ログアウト
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- 日付選択セクション -->
+            <section class="date-selection-section">
+                <div class="section-card">
+                    <h2>📅 設定する日付を選択</h2>
+                    <div class="date-picker-container">
+                        <input type="date" id="target-date" class="date-input">
+                        <button onclick="loadDateSettings()" class="load-btn">
+                            設定を読み込み
+                        </button>
+                    </div>
+                    <div class="date-info">
+                        <p>選択した日付: <span id="selected-date-display">未選択</span></p>
+                        <p class="date-note">※ 未来の日付のみ設定可能です</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 予約オプション設定セクション -->
+            <section class="options-settings-section">
+                <div class="section-card">
+                    <h2>🎛️ 受付オプション設定</h2>
+                    <div class="settings-grid">
+                        <!-- 遅刻申請設定 -->
+                        <div class="option-category">
+                            <div class="category-header">
+                                <h3>⏰ 遅刻申請</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="late-arrival-enabled" onchange="toggleCategory('late-arrival')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div id="late-arrival-options" class="option-list">
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="late-10-11" value="10時から11時">
+                                        <span>10時から11時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="late-11-12" value="11時から12時">
+                                        <span>11時から12時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="late-12-13" value="12時から13時">
+                                        <span>12時から13時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="late-13-14" value="13時から14時">
+                                        <span>13時から14時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="late-14-15" value="14時から15時">
+                                        <span>14時から15時</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 早退申請設定 -->
+                        <div class="option-category">
+                            <div class="category-header">
+                                <h3>🏃 早退申請</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="early-departure-enabled" onchange="toggleCategory('early-departure')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div id="early-departure-options" class="option-list">
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="early-10-11" value="10時から11時">
+                                        <span>10時から11時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="early-11-12" value="11時から12時">
+                                        <span>11時から12時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="early-12-13" value="12時から13時">
+                                        <span>12時から13時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="early-13-14" value="13時から14時">
+                                        <span>13時から14時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="early-14-15" value="14時から15時">
+                                        <span>14時から15時</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 預かり保育設定 -->
+                        <div class="option-category">
+                            <div class="category-header">
+                                <h3>🧸 預かり保育</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="childcare-enabled" onchange="toggleCategory('childcare')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div id="childcare-options" class="option-list">
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="childcare-morning" value="朝預かり (7:30-8:30)">
+                                        <span>朝預かり (7:30-8:30)</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="childcare-afternoon" value="午後預かり (14:00-18:00)">
+                                        <span>午後預かり (14:00-18:00)</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="childcare-full" value="一日預かり (7:30-18:00)">
+                                        <span>一日預かり (7:30-18:00)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 延長保育設定 -->
+                        <div class="option-category">
+                            <div class="category-header">
+                                <h3>⏳ 延長保育</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="extended-care-enabled" onchange="toggleCategory('extended-care')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div id="extended-care-options" class="option-list">
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="extended-18-19" value="18時から19時">
+                                        <span>18時から19時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="extended-19-20" value="19時から20時">
+                                        <span>19時から20時</span>
+                                    </label>
+                                </div>
+                                <div class="time-option">
+                                    <label>
+                                        <input type="checkbox" id="extended-emergency" value="緊急延長">
+                                        <span>緊急延長</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 一括設定セクション -->
+            <section class="bulk-settings-section">
+                <div class="section-card">
+                    <h2>📋 一括設定</h2>
+                    <div class="bulk-actions">
+                        <button onclick="selectAllOptions()" class="bulk-btn select-all-btn">
+                            <span class="btn-icon">✅</span>
+                            すべて選択
+                        </button>
+                        <button onclick="clearAllOptions()" class="bulk-btn clear-all-btn">
+                            <span class="btn-icon">❌</span>
+                            すべてクリア
+                        </button>
+                        <button onclick="copyFromPreviousDay()" class="bulk-btn copy-btn">
+                            <span class="btn-icon">📄</span>
+                            前日設定をコピー
+                        </button>
+                        <button onclick="applyTemplate()" class="bulk-btn template-btn">
+                            <span class="btn-icon">📝</span>
+                            テンプレート適用
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 保存・適用セクション -->
+            <section class="save-section">
+                <div class="section-card">
+                    <h2>💾 設定の保存</h2>
+                    <div class="save-actions">
+                        <div class="save-info">
+                            <p>設定状況: <span id="save-status">未保存</span></p>
+                            <p class="save-note">※ 設定を変更した後は必ず保存してください</p>
+                        </div>
+                        <div class="save-buttons">
+                            <button onclick="previewSettings()" class="action-btn preview-btn">
+                                <span class="btn-icon">👁️</span>
+                                プレビュー
+                            </button>
+                            <button onclick="saveSettings()" class="action-btn save-btn">
+                                <span class="btn-icon">💾</span>
+                                設定を保存
+                            </button>
+                            <button onclick="resetSettings()" class="action-btn reset-btn">
+                                <span class="btn-icon">🔄</span>
+                                リセット
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- プレビューモーダル -->
+        <div id="preview-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🔍 設定プレビュー</h3>
+                    <button onclick="closeModal()" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="preview-content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeModal()" class="modal-btn secondary">閉じる</button>
+                    <button onclick="saveSettingsFromPreview()" class="modal-btn primary">この設定で保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成功・エラーメッセージ -->
+        <div id="message-container"></div>
+    </div>
+
+    <script src="reservation-settings.js"></script>
+</body>
+</html>
