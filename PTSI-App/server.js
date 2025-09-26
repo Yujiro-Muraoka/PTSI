@@ -142,9 +142,25 @@ app.get('/admin-login', (req, res) => {
 app.get('/admin-dashboard', (req, res) => {
   const tenantId = req.query.tenant || req.cookies.tenantId;
   
+  // 管理者認証チェック
+  const adminId = req.cookies.adminId;
+  if (!adminId) {
+    return res.redirect('/admin-login');
+  }
+  
+  // テナントIDが設定されていない場合のみリダイレクト
   if (!tenantId) {
-    // テナントが指定されていない場合はテナント選択にリダイレクト
-    return res.redirect('/tenant-selection');
+    // 管理者が既にログインしている場合は、テナント選択ではなく適切な処理を行う
+    console.log('Admin dashboard access without tenant ID, checking admin session...');
+    // デフォルトテナントを設定するか、テナント選択画面に遷移
+    const defaultTenant = 'himawari-hoikuen';
+    if (fs.existsSync(path.join(__dirname, 'tenant-config', `${defaultTenant}.json`))) {
+      // デフォルトテナントでCookieを設定してダッシュボードを表示
+      res.cookie('tenantId', defaultTenant, { maxAge: 24 * 60 * 60 * 1000 }); // 24時間
+      return res.sendFile(path.join(__dirname, 'admin-dashboard', 'admin-dashboard.html'));
+    } else {
+      return res.redirect('/tenant-selection');
+    }
   }
   
   // テナントの存在確認
@@ -1749,6 +1765,240 @@ function parseCSVLine(line) {
   result.push(current);
   return result;
 }
+
+// 登園退園管理API
+app.get('/admin/attendance', (req, res) => {
+  try {
+    const tenantId = req.query.tenant || req.cookies.tenantId || 'himawari-hoikuen';
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 当日の出席データファイルパス
+    const attendanceDir = path.join(__dirname, 'tenant-data', tenantId, 'attendance');
+    const attendanceFile = path.join(attendanceDir, `${today}.csv`);
+    
+    // ディレクトリが存在しない場合は作成
+    if (!fs.existsSync(attendanceDir)) {
+      fs.mkdirSync(attendanceDir, { recursive: true });
+    }
+    
+    // 学生データを読み込み
+    const studentsFile = path.join(__dirname, 'tenant-data', tenantId, 'student-info.csv');
+    let students = [];
+    
+    if (fs.existsSync(studentsFile)) {
+      const studentsContent = fs.readFileSync(studentsFile, 'utf8');
+      const studentsLines = studentsContent.split('\n').filter(line => line.trim());
+      students = studentsLines.slice(1).map(line => {
+        const [id, name, grade, className, parentName, phone, email] = parseCSVLine(line);
+        return { id, name, grade, className, parentName, phone, email };
+      });
+    }
+    
+    // 当日の出席データを読み込み
+    let attendanceRecords = [];
+    if (fs.existsSync(attendanceFile)) {
+      const attendanceContent = fs.readFileSync(attendanceFile, 'utf8');
+      const attendanceLines = attendanceContent.split('\n').filter(line => line.trim());
+      if (attendanceLines.length > 1) {
+        attendanceRecords = attendanceLines.slice(1).map(line => {
+          const [studentId, studentName, className, checkInTime, checkOutTime, status] = parseCSVLine(line);
+          return { studentId, studentName, className, checkInTime, checkOutTime, status };
+        });
+      }
+    }
+    
+    // 学生と出席データをマージ
+    const attendanceData = students.map(student => {
+      const attendance = attendanceRecords.find(record => record.studentId === student.id);
+      return {
+        ...student,
+        checkInTime: attendance?.checkInTime || '',
+        checkOutTime: attendance?.checkOutTime || '',
+        status: attendance?.status || '未登園'
+      };
+    });
+    
+    res.json({
+      success: true,
+      date: today,
+      attendanceData
+    });
+    
+  } catch (error) {
+    console.error('出席データ取得エラー:', error);
+    res.status(500).json({ success: false, message: '出席データの取得に失敗しました' });
+  }
+});
+
+// 登園記録API
+app.post('/admin/attendance/checkin', (req, res) => {
+  try {
+    const { studentId, studentName, className } = req.body;
+    const tenantId = req.body.tenant || req.cookies.tenantId || 'himawari-hoikuen';
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date().toLocaleTimeString('ja-JP', { hour12: false });
+    
+    // 出席データファイルパス
+    const attendanceDir = path.join(__dirname, 'tenant-data', tenantId, 'attendance');
+    const attendanceFile = path.join(attendanceDir, `${today}.csv`);
+    
+    // ディレクトリが存在しない場合は作成
+    if (!fs.existsSync(attendanceDir)) {
+      fs.mkdirSync(attendanceDir, { recursive: true });
+    }
+    
+    let attendanceData = [];
+    let headerExists = false;
+    
+    // 既存データを読み込み
+    if (fs.existsSync(attendanceFile)) {
+      const content = fs.readFileSync(attendanceFile, 'utf8');
+      const lines = content.split('\n').filter(line => line.trim());
+      if (lines.length > 0) {
+        headerExists = true;
+        attendanceData = lines.slice(1).map(line => parseCSVLine(line));
+      }
+    }
+    
+    // 既存の記録を確認
+    const existingIndex = attendanceData.findIndex(record => record[0] === studentId);
+    
+    if (existingIndex >= 0) {
+      // 既存記録を更新（登園時刻とステータス）
+      attendanceData[existingIndex] = [studentId, studentName, className, now, attendanceData[existingIndex][4] || '', '登園中'];
+    } else {
+      // 新規記録を追加
+      attendanceData.push([studentId, studentName, className, now, '', '登園中']);
+    }
+    
+    // CSVファイルに保存
+    let csvContent = '';
+    if (!headerExists) {
+      csvContent = '学籍番号,氏名,クラス,登園時刻,退園時刻,状態\n';
+    } else {
+      csvContent = '学籍番号,氏名,クラス,登園時刻,退園時刻,状態\n';
+    }
+    
+    attendanceData.forEach(record => {
+      csvContent += `"${record[0]}","${record[1]}","${record[2]}","${record[3]}","${record[4]}","${record[5]}"\n`;
+    });
+    
+    fs.writeFileSync(attendanceFile, csvContent);
+    
+    res.json({ success: true, message: '登園を記録しました', checkInTime: now });
+    
+  } catch (error) {
+    console.error('登園記録エラー:', error);
+    res.status(500).json({ success: false, message: '登園記録に失敗しました' });
+  }
+});
+
+// 退園記録API
+app.post('/admin/attendance/checkout', (req, res) => {
+  try {
+    const { studentId, studentName, className } = req.body;
+    const tenantId = req.body.tenant || req.cookies.tenantId || 'himawari-hoikuen';
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date().toLocaleTimeString('ja-JP', { hour12: false });
+    
+    // 出席データファイルパス
+    const attendanceDir = path.join(__dirname, 'tenant-data', tenantId, 'attendance');
+    const attendanceFile = path.join(attendanceDir, `${today}.csv`);
+    
+    if (!fs.existsSync(attendanceFile)) {
+      return res.status(400).json({ success: false, message: '登園記録が見つかりません' });
+    }
+    
+    // 既存データを読み込み
+    const content = fs.readFileSync(attendanceFile, 'utf8');
+    const lines = content.split('\n').filter(line => line.trim());
+    let attendanceData = lines.slice(1).map(line => parseCSVLine(line));
+    
+    // 該当学生の記録を更新
+    const existingIndex = attendanceData.findIndex(record => record[0] === studentId);
+    
+    if (existingIndex >= 0) {
+      // 退園時刻とステータスを更新
+      attendanceData[existingIndex][4] = now; // 退園時刻
+      attendanceData[existingIndex][5] = '退園済み'; // ステータス
+    } else {
+      return res.status(400).json({ success: false, message: '登園記録が見つかりません' });
+    }
+    
+    // CSVファイルに保存
+    let csvContent = '学籍番号,氏名,クラス,登園時刻,退園時刻,状態\n';
+    attendanceData.forEach(record => {
+      csvContent += `"${record[0]}","${record[1]}","${record[2]}","${record[3]}","${record[4]}","${record[5]}"\n`;
+    });
+    
+    fs.writeFileSync(attendanceFile, csvContent);
+    
+    res.json({ success: true, message: '退園を記録しました', checkOutTime: now });
+    
+  } catch (error) {
+    console.error('退園記録エラー:', error);
+    res.status(500).json({ success: false, message: '退園記録に失敗しました' });
+  }
+});
+
+// 出席統計API
+app.get('/admin/attendance/stats', (req, res) => {
+  try {
+    const tenantId = req.query.tenant || req.cookies.tenantId || 'himawari-hoikuen';
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 当日の出席データを取得
+    const attendanceDir = path.join(__dirname, 'tenant-data', tenantId, 'attendance');
+    const attendanceFile = path.join(attendanceDir, `${today}.csv`);
+    
+    let stats = {
+      totalStudents: 0,
+      presentStudents: 0,
+      absentStudents: 0,
+      checkedOutStudents: 0,
+      attendanceRate: 0
+    };
+    
+    // 学生総数を取得
+    const studentsFile = path.join(__dirname, 'tenant-data', tenantId, 'student-info.csv');
+    if (fs.existsSync(studentsFile)) {
+      const studentsContent = fs.readFileSync(studentsFile, 'utf8');
+      const studentsLines = studentsContent.split('\n').filter(line => line.trim());
+      stats.totalStudents = studentsLines.length - 1; // ヘッダーを除く
+    }
+    
+    // 当日の出席データを解析
+    if (fs.existsSync(attendanceFile)) {
+      const content = fs.readFileSync(attendanceFile, 'utf8');
+      const lines = content.split('\n').filter(line => line.trim());
+      const attendanceRecords = lines.slice(1).map(line => parseCSVLine(line));
+      
+      attendanceRecords.forEach(record => {
+        const status = record[5];
+        if (status === '登園中' || status === '退園済み') {
+          stats.presentStudents++;
+        }
+        if (status === '退園済み') {
+          stats.checkedOutStudents++;
+        }
+      });
+    }
+    
+    stats.absentStudents = stats.totalStudents - stats.presentStudents;
+    stats.attendanceRate = stats.totalStudents > 0 ? 
+      Math.round((stats.presentStudents / stats.totalStudents) * 100) : 0;
+    
+    res.json({
+      success: true,
+      date: today,
+      stats
+    });
+    
+  } catch (error) {
+    console.error('出席統計取得エラー:', error);
+    res.status(500).json({ success: false, message: '出席統計の取得に失敗しました' });
+  }
+});
 
 // サーバーを起動
 const port = process.env.PORT || 3000;

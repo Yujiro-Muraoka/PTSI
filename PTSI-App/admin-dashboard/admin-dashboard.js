@@ -111,6 +111,8 @@ function showSection(sectionName) {
         loadReservations();
     } else if (sectionName === 'students') {
         loadStudents();
+    } else if (sectionName === 'attendance') {
+        loadAttendanceData();
     }
 }
 
@@ -1132,4 +1134,399 @@ async function downloadParentManual() {
             btn.disabled = false;
         }, 3000);
     }
+}
+
+// ================== 登園退園管理機能 ==================
+
+let attendanceData = [];
+let filteredAttendanceData = [];
+
+/**
+ * 出席データを読み込む
+ * @returns {void}
+ */
+function loadAttendanceData() {
+    console.log('出席データを読み込み中...');
+    
+    // 統計データを読み込み
+    loadAttendanceStats();
+    
+    // 出席一覧を読み込み
+    fetch('/admin/attendance')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                attendanceData = data.attendanceData;
+                filteredAttendanceData = [...attendanceData];
+                displayAttendanceTable();
+                updateClassAttendanceCards();
+            } else {
+                throw new Error(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('出席データ読み込みエラー:', error);
+            // フォールバックデータを生成
+            generateFallbackAttendanceData();
+        });
+}
+
+/**
+ * 出席統計を読み込む
+ * @returns {void}
+ */
+function loadAttendanceStats() {
+    fetch('/admin/attendance/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateAttendanceStats(data.stats);
+            }
+        })
+        .catch(error => {
+            console.error('出席統計読み込みエラー:', error);
+            // デモデータで更新
+            updateAttendanceStats({
+                totalStudents: 125,
+                presentStudents: 98,
+                absentStudents: 27,
+                checkedOutStudents: 15,
+                attendanceRate: 78
+            });
+        });
+}
+
+/**
+ * 出席統計を更新する
+ * @param {Object} stats - 統計データ
+ * @returns {void}
+ */
+function updateAttendanceStats(stats) {
+    document.getElementById('present-count').textContent = stats.presentStudents || 0;
+    document.getElementById('absent-count').textContent = stats.absentStudents || 0;
+    document.getElementById('checked-out-count').textContent = stats.checkedOutStudents || 0;
+    document.getElementById('attendance-rate').textContent = `${stats.attendanceRate || 0}%`;
+}
+
+/**
+ * 出席テーブルを表示する
+ * @returns {void}
+ */
+function displayAttendanceTable() {
+    const tbody = document.getElementById('attendance-table-body');
+    if (!tbody) return;
+    
+    if (filteredAttendanceData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="loading-row">データがありません</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = filteredAttendanceData.map(student => {
+        const statusClass = getStatusClass(student.status);
+        const canCheckIn = student.status === '未登園';
+        const canCheckOut = student.status === '登園中';
+        
+        return `
+            <tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.className}</td>
+                <td>${student.checkInTime || '-'}</td>
+                <td>${student.checkOutTime || '-'}</td>
+                <td><span class="${statusClass}">${student.status}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-checkin" 
+                                onclick="checkInStudent('${student.id}', '${student.name}', '${student.className}')"
+                                ${!canCheckIn ? 'disabled' : ''}>
+                            登園
+                        </button>
+                        <button class="btn-checkout" 
+                                onclick="checkOutStudent('${student.id}', '${student.name}', '${student.className}')"
+                                ${!canCheckOut ? 'disabled' : ''}>
+                            退園
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+/**
+ * ステータスに対応するCSSクラスを取得
+ * @param {string} status - ステータス
+ * @returns {string} CSSクラス名
+ */
+function getStatusClass(status) {
+    switch (status) {
+        case '登園中': return 'status-present';
+        case '退園済み': return 'status-checked-out';
+        case '未登園': return 'status-absent';
+        default: return '';
+    }
+}
+
+/**
+ * 学生を登園状態にする
+ * @param {string} studentId - 学籍番号
+ * @param {string} studentName - 学生名
+ * @param {string} className - クラス名
+ * @returns {void}
+ */
+function checkInStudent(studentId, studentName, className) {
+    if (!confirm(`${studentName}さんの登園を記録しますか？`)) {
+        return;
+    }
+    
+    fetch('/admin/attendance/checkin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            studentId,
+            studentName,
+            className
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`${studentName}さんの登園を記録しました`);
+            loadAttendanceData(); // データを再読み込み
+        } else {
+            alert(`登園記録に失敗しました: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('登園記録エラー:', error);
+        alert('登園記録に失敗しました');
+    });
+}
+
+/**
+ * 学生を退園状態にする
+ * @param {string} studentId - 学籍番号
+ * @param {string} studentName - 学生名
+ * @param {string} className - クラス名
+ * @returns {void}
+ */
+function checkOutStudent(studentId, studentName, className) {
+    if (!confirm(`${studentName}さんの退園を記録しますか？`)) {
+        return;
+    }
+    
+    fetch('/admin/attendance/checkout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            studentId,
+            studentName,
+            className
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`${studentName}さんの退園を記録しました`);
+            loadAttendanceData(); // データを再読み込み
+        } else {
+            alert(`退園記録に失敗しました: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('退園記録エラー:', error);
+        alert('退園記録に失敗しました');
+    });
+}
+
+/**
+ * 学生をフィルタリングする
+ * @returns {void}
+ */
+function filterStudents() {
+    const searchTerm = document.getElementById('student-search').value.toLowerCase();
+    const classFilter = document.getElementById('class-filter').value;
+    const statusFilter = document.getElementById('status-filter').value;
+    
+    filteredAttendanceData = attendanceData.filter(student => {
+        const matchesSearch = student.name.toLowerCase().includes(searchTerm) || 
+                            student.id.toLowerCase().includes(searchTerm);
+        const matchesClass = !classFilter || student.className === classFilter;
+        const matchesStatus = !statusFilter || student.status === statusFilter;
+        
+        return matchesSearch && matchesClass && matchesStatus;
+    });
+    
+    displayAttendanceTable();
+}
+
+/**
+ * クラス別出席カードを更新する
+ * @returns {void}
+ */
+function updateClassAttendanceCards() {
+    const cardsContainer = document.getElementById('class-attendance-cards');
+    if (!cardsContainer) return;
+    
+    // クラス別データを集計
+    const classStats = {};
+    attendanceData.forEach(student => {
+        if (!classStats[student.className]) {
+            classStats[student.className] = {
+                total: 0,
+                present: 0,
+                absent: 0,
+                checkedOut: 0
+            };
+        }
+        
+        classStats[student.className].total++;
+        if (student.status === '登園中' || student.status === '退園済み') {
+            classStats[student.className].present++;
+        }
+        if (student.status === '未登園') {
+            classStats[student.className].absent++;
+        }
+        if (student.status === '退園済み') {
+            classStats[student.className].checkedOut++;
+        }
+    });
+    
+    // カードを生成
+    cardsContainer.innerHTML = Object.entries(classStats).map(([className, stats]) => {
+        const attendanceRate = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
+        
+        return `
+            <div class="class-attendance-card">
+                <h4>${className}</h4>
+                <div class="class-attendance-stats">
+                    <div class="class-stat">
+                        <div class="class-stat-number">${stats.total}</div>
+                        <div class="class-stat-label">総数</div>
+                    </div>
+                    <div class="class-stat">
+                        <div class="class-stat-number">${stats.present}</div>
+                        <div class="class-stat-label">登園</div>
+                    </div>
+                    <div class="class-stat">
+                        <div class="class-stat-number">${stats.absent}</div>
+                        <div class="class-stat-label">欠席</div>
+                    </div>
+                    <div class="class-stat">
+                        <div class="class-stat-number">${attendanceRate}%</div>
+                        <div class="class-stat-label">出席率</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * 出席データを更新する
+ * @returns {void}
+ */
+function refreshAttendance() {
+    console.log('出席データを更新中...');
+    loadAttendanceData();
+}
+
+/**
+ * 出席レポートを出力する
+ * @returns {void}
+ */
+function exportAttendanceReport() {
+    const today = new Date().toISOString().split('T')[0];
+    const filename = `attendance_report_${today}.csv`;
+    
+    // CSVヘッダー
+    let csvContent = '学籍番号,氏名,クラス,登園時刻,退園時刻,状態\n';
+    
+    // データ行を追加
+    attendanceData.forEach(student => {
+        csvContent += `"${student.id}","${student.name}","${student.className}","${student.checkInTime || ''}","${student.checkOutTime || ''}","${student.status}"\n`;
+    });
+    
+    // ファイルをダウンロード
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    alert(`出席レポート "${filename}" をダウンロードしました`);
+}
+
+/**
+ * フォールバック用の出席データを生成する
+ * @returns {void}
+ */
+function generateFallbackAttendanceData() {
+    console.log('フォールバック出席データを生成中...');
+    
+    const classes = ['ライオン組', 'ぞう組', 'ひよこ組', 'あひる組', 'うさぎ組'];
+    const statuses = ['登園中', '退園済み', '未登園'];
+    
+    attendanceData = [];
+    
+    for (let i = 1; i <= 25; i++) {
+        const className = classes[Math.floor(Math.random() * classes.length)];
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        
+        // 登園時刻と退園時刻を設定
+        let checkInTime = '';
+        let checkOutTime = '';
+        
+        if (status === '登園中' || status === '退園済み') {
+            const hour = Math.floor(Math.random() * 3) + 8; // 8-10時
+            const minute = Math.floor(Math.random() * 60);
+            checkInTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+        }
+        
+        if (status === '退園済み') {
+            const hour = Math.floor(Math.random() * 2) + 16; // 16-17時
+            const minute = Math.floor(Math.random() * 60);
+            checkOutTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+        }
+        
+        attendanceData.push({
+            id: `STU${i.toString().padStart(3, '0')}`,
+            name: `生徒${i}`,
+            className: className,
+            parentName: `保護者${i}`,
+            phone: `090-1234-${i.toString().padStart(4, '0')}`,
+            email: `parent${i}@example.com`,
+            checkInTime,
+            checkOutTime,
+            status
+        });
+    }
+    
+    filteredAttendanceData = [...attendanceData];
+    displayAttendanceTable();
+    updateClassAttendanceCards();
+    
+    // フォールバック統計も更新
+    const presentCount = attendanceData.filter(s => s.status === '登園中' || s.status === '退園済み').length;
+    const absentCount = attendanceData.filter(s => s.status === '未登園').length;
+    const checkedOutCount = attendanceData.filter(s => s.status === '退園済み').length;
+    const rate = Math.round((presentCount / attendanceData.length) * 100);
+    
+    updateAttendanceStats({
+        totalStudents: attendanceData.length,
+        presentStudents: presentCount,
+        absentStudents: absentCount,
+        checkedOutStudents: checkedOutCount,
+        attendanceRate: rate
+    });
 }

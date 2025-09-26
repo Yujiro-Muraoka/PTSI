@@ -24,6 +24,7 @@
                 <h3>📊 メニュー</h3>
                 <ul class="menu-list">
                     <li><a href="#overview" onclick="showSection('overview')" class="menu-item active">概要</a></li>
+                    <li><a href="#attendance" onclick="showSection('attendance')" class="menu-item">🎯 登園退園管理</a></li>
                     <li><a href="#analytics" onclick="showSection('analytics')" class="menu-item">📊 統計分析</a></li>
                     <li><a href="#reservations" onclick="showSection('reservations')" class="menu-item">予約管理</a></li>
                     <li><a href="#students" onclick="showSection('students')" class="menu-item">学生情報</a></li>
@@ -449,6 +450,107 @@
                                 機密情報の外部共有は禁止されています。
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 登園退園管理セクション -->
+            <div id="attendance-section" class="content-section">
+                <div class="section-header">
+                    <h2>🎯 登園退園管理</h2>
+                    <div class="section-actions">
+                        <button onclick="refreshAttendance()" class="refresh-btn">🔄 更新</button>
+                        <button onclick="exportAttendanceReport()" class="export-btn">📊 出席レポート出力</button>
+                    </div>
+                </div>
+
+                <!-- 出席統計サマリー -->
+                <div class="attendance-summary">
+                    <div class="summary-card present">
+                        <div class="summary-icon">✅</div>
+                        <div class="summary-content">
+                            <h3>登園中</h3>
+                            <div class="summary-number" id="present-count">-</div>
+                            <div class="summary-label">名</div>
+                        </div>
+                    </div>
+                    <div class="summary-card absent">
+                        <div class="summary-icon">❌</div>
+                        <div class="summary-content">
+                            <h3>未登園</h3>
+                            <div class="summary-number" id="absent-count">-</div>
+                            <div class="summary-label">名</div>
+                        </div>
+                    </div>
+                    <div class="summary-card checked-out">
+                        <div class="summary-icon">🏠</div>
+                        <div class="summary-content">
+                            <h3>退園済み</h3>
+                            <div class="summary-number" id="checked-out-count">-</div>
+                            <div class="summary-label">名</div>
+                        </div>
+                    </div>
+                    <div class="summary-card rate">
+                        <div class="summary-icon">📊</div>
+                        <div class="summary-content">
+                            <h3>出席率</h3>
+                            <div class="summary-number" id="attendance-rate">-%</div>
+                            <div class="summary-label">今日</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 出席管理ツール -->
+                <div class="attendance-tools">
+                    <div class="tool-section">
+                        <h3>🔍 学生検索</h3>
+                        <div class="search-controls">
+                            <input type="text" id="student-search" placeholder="学生名または学籍番号で検索..." onkeyup="filterStudents()">
+                            <select id="class-filter" onchange="filterStudents()">
+                                <option value="">全クラス</option>
+                                <option value="ライオン組">ライオン組</option>
+                                <option value="ぞう組">ぞう組</option>
+                                <option value="ひよこ組">ひよこ組</option>
+                                <option value="あひる組">あひる組</option>
+                                <option value="うさぎ組">うさぎ組</option>
+                            </select>
+                            <select id="status-filter" onchange="filterStudents()">
+                                <option value="">全ステータス</option>
+                                <option value="登園中">登園中</option>
+                                <option value="退園済み">退園済み</option>
+                                <option value="未登園">未登園</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 出席一覧テーブル -->
+                <div class="attendance-table-container">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>学籍番号</th>
+                                <th>氏名</th>
+                                <th>クラス</th>
+                                <th>登園時刻</th>
+                                <th>退園時刻</th>
+                                <th>状態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-table-body">
+                            <tr>
+                                <td colspan="7" class="loading-row">データを読み込み中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- クラス別出席状況 -->
+                <div class="class-attendance-grid">
+                    <h3>📚 クラス別出席状況</h3>
+                    <div class="class-cards" id="class-attendance-cards">
+                        <!-- JavaScript で動的に生成 -->
                     </div>
                 </div>
             </div>

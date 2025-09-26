@@ -1472,3 +1472,324 @@ body {
         font-size: 2.5rem;
     }
 }
+
+/* 登園退園管理スタイル */
+.attendance-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.attendance-summary .summary-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.attendance-summary .summary-card:hover {
+    transform: translateY(-2px);
+}
+
+.attendance-summary .summary-card.present {
+    border-left: 5px solid #27ae60;
+}
+
+.attendance-summary .summary-card.absent {
+    border-left: 5px solid #e74c3c;
+}
+
+.attendance-summary .summary-card.checked-out {
+    border-left: 5px solid #f39c12;
+}
+
+.attendance-summary .summary-card.rate {
+    border-left: 5px solid #3498db;
+}
+
+.summary-icon {
+    font-size: 3rem;
+    opacity: 0.8;
+}
+
+.summary-content h3 {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.summary-number {
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #2c3e50;
+    line-height: 1;
+}
+
+.summary-label {
+    font-size: 1.2rem;
+    color: #999;
+}
+
+.attendance-tools {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tool-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.search-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-controls input,
+.search-controls select {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 1.4rem;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-controls input:focus,
+.search-controls select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.attendance-table-container {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.4rem;
+}
+
+.attendance-table th {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    text-align: left;
+    font-weight: bold;
+    color: #2c3e50;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.attendance-table td {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.attendance-table tr:hover {
+    background: #f8f9fa;
+}
+
+.status-present {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.attendance-table .status-absent {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.status-checked-out {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-checkin {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-checkin:hover {
+    background: #219a52;
+}
+
+.btn-checkout {
+    background: #f39c12;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-checkout:hover {
+    background: #e67e22;
+}
+
+.btn-checkin:disabled,
+.btn-checkout:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.class-attendance-grid {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.class-attendance-grid h3 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.class-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.class-attendance-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border-left: 4px solid #3498db;
+}
+
+.class-attendance-card h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.6rem;
+}
+
+.class-attendance-stats {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.class-stat {
+    text-align: center;
+}
+
+.class-stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.class-stat-label {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.attendance-section .refresh-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.4rem;
+    transition: background-color 0.3s ease;
+}
+
+.attendance-section .refresh-btn:hover {
+    background: #2980b9;
+}
+
+.export-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.4rem;
+    transition: background-color 0.3s ease;
+}
+
+.attendance-section .export-btn:hover {
+    background: #219a52;
+}
+
+.section-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.loading-row {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .attendance-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-controls {
+        flex-direction: column;
+    }
+    
+    .search-controls input,
+    .search-controls select {
+        min-width: 100%;
+    }
+    
+    .attendance-table-container {
+        padding: 1rem;
+    }
+    
+    .attendance-table {
+        font-size: 1.2rem;
+    }
+    
+    .attendance-table th,
+    .attendance-table td {
+        padding: 1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .section-actions {
+        flex-direction: column;
+    }
+}
