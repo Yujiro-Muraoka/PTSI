@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保護者ログイン - PTSI</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="parent-login.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1 class="app-title">👨‍👩‍👧‍👦 保護者ログイン</h1>
+            <p class="app-subtitle">PTSI - 近畿大学付属幼稚園 登降園管理システム</p>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-main">
+            <div class="login-form-container">
+                <div class="login-form">
+                    <h2 class="form-title">保護者様専用ログイン</h2>
+                    <p class="form-description">園児の保護者様は、こちらからログインしてください</p>
+                    
+                    <form id="parent-login-form" class="form-content">
+                        <div class="input-group">
+                            <label for="student-id" class="input-label">
+                                <span class="label-icon">🎓</span>
+                                学生ID
+                            </label>
+                            <input type="text" 
+                                   id="student-id" 
+                                   name="student-id" 
+                                   placeholder="例: 22001" 
+                                   class="form-input"
+                                   required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="password" class="input-label">
+                                <span class="label-icon">🔒</span>
+                                パスワード
+                            </label>
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="パスワードを入力してください" 
+                                   class="form-input"
+                                   required>
+                        </div>
+                        
+                        <button type="button" 
+                                class="login-btn"
+                                onclick="parentLogin()">
+                            <span class="btn-icon">🔓</span>
+                            ログイン
+                        </button>
+                        
+                        <div id="error-message" class="error-message"></div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 利用可能機能 -->
+            <div class="features-section">
+                <h3 class="features-title">🌟 ご利用いただける機能</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">📅</div>
+                        <div class="feature-content">
+                            <h4>予約申請</h4>
+                            <p>遅刻・早退・欠席・延長保育の申請が24時間可能です</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💬</div>
+                        <div class="feature-content">
+                            <h4>チャット機能</h4>
+                            <p>担任の先生やクラスの保護者様とリアルタイムでやり取りできます</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-content">
+                            <h4>統計確認</h4>
+                            <p>お子様の出席状況や申請履歴をグラフで確認できます</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📋</div>
+                        <div class="feature-content">
+                            <h4>申請履歴</h4>
+                            <p>過去の申請内容や承認状況を一覧で確認できます</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- サイドバー情報 -->
+        <div class="sidebar-info">
+            <!-- デモアカウント -->
+            <div class="info-card demo-account">
+                <h3 class="card-title">💡 デモアカウント</h3>
+                <div class="demo-credentials">
+                    <div class="credential-item">
+                        <strong>学生ID:</strong> 22001
+                    </div>
+                    <div class="credential-item">
+                        <strong>パスワード:</strong> 22001
+                    </div>
+                </div>
+                <p class="demo-note">※ デモ用のアカウントです。実際のシステムでは園から配布されたIDをご利用ください。</p>
+            </div>
+            
+            <!-- ヘルプ -->
+            <div class="info-card help-section">
+                <h3 class="card-title">❓ お困りの場合</h3>
+                <div class="help-items">
+                    <div class="help-item">
+                        <span class="help-icon">📖</span>
+                        <div class="help-content">
+                            <strong>操作マニュアル</strong>
+                            <a href="/download/parent-manual" class="help-link" target="_blank">PDFダウンロード</a>
+                        </div>
+                    </div>
+                    <div class="help-item">
+                        <span class="help-icon">📞</span>
+                        <div class="help-content">
+                            <strong>お問い合わせ</strong>
+                            <p>園までお電話ください<br>平日 8:00-18:00</p>
+                        </div>
+                    </div>
+                    <div class="help-item">
+                        <span class="help-icon">🔄</span>
+                        <div class="help-content">
+                            <strong>パスワードを忘れた方</strong>
+                            <p>園の職員までお声がけください</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- お知らせ -->
+            <div class="info-card news-section">
+                <h3 class="card-title">📢 お知らせ</h3>
+                <div class="news-items">
+                    <div class="news-item">
+                        <div class="news-date">2025.09.26</div>
+                        <div class="news-content">
+                            <strong>システムバージョンアップ</strong>
+                            <p>スマートフォン表示を改善しました</p>
+                        </div>
+                    </div>
+                    <div class="news-item">
+                        <div class="news-date">2025.09.25</div>
+                        <div class="news-content">
+                            <strong>新機能追加</strong>
+                            <p>統計表示機能を強化しました</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ナビゲーション -->
+    <div class="navigation">
+        <a href="/login-select" class="nav-link back-link">
+            <span class="nav-icon">←</span>
+            ログイン選択に戻る
+        </a>
+        <a href="/admin-login" class="nav-link">
+            <span class="nav-icon">🏫</span>
+            運営側ログイン
+        </a>
+    </div>
+
+    <div class="footer">
+        <p class="footer-text">© 2025 近畿大学付属幼稚園 登降園管理システム (PTSI) v2.2.1</p>
+    </div>
+
+    <script src="parent-login.js"></script>
+</body>
+</html>

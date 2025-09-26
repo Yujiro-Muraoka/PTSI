@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ログイン - PTSI幼稚園管理システム</title>
+    <link rel="stylesheet" href="admin-login-new.css">
+    <link rel="icon" type="image/x-icon" href="../fonts/favicon.ico">
+</head>
+<body>
+    <div class="admin-login-container">
+        <!-- ヘッダーセクション -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">🏫</div>
+                    <div class="system-title">
+                        <h1>PTSI幼稚園管理システム</h1>
+                        <p class="subtitle">Administrator Access Portal</p>
+                    </div>
+                </div>
+                <div class="breadcrumb">
+                    <a href="/login-select" class="back-link">
+                        <span class="back-icon">←</span>
+                        ログイン選択に戻る
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <div class="login-wrapper">
+                <!-- 管理者ログインフォーム -->
+                <div class="admin-login-card">
+                    <div class="card-header">
+                        <div class="admin-icon">👨‍💼</div>
+                        <h2>管理者ログイン</h2>
+                        <p class="login-description">
+                            システム管理者としてログインします<br>
+                            認証情報を正確に入力してください
+                        </p>
+                    </div>
+
+                    <form id="admin-login-form" class="login-form">
+                        <div class="form-group">
+                            <label for="admin-id" class="form-label">
+                                <span class="label-icon">🆔</span>
+                                管理者ID
+                            </label>
+                            <input 
+                                type="text" 
+                                id="admin-id" 
+                                name="adminId"
+                                class="form-input"
+                                placeholder="管理者IDを入力"
+                                required
+                                autocomplete="username"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="admin-password" class="form-label">
+                                <span class="label-icon">🔐</span>
+                                パスワード
+                            </label>
+                            <input 
+                                type="password" 
+                                id="admin-password" 
+                                name="adminPassword"
+                                class="form-input"
+                                placeholder="パスワードを入力"
+                                required
+                                autocomplete="current-password"
+                            >
+                        </div>
+
+                        <div class="security-notice">
+                            <span class="notice-icon">🛡️</span>
+                            <p>管理者アクセスは高度なセキュリティで保護されています</p>
+                        </div>
+
+                        <button type="button" onclick="adminLogin()" class="admin-login-btn">
+                            <span class="btn-icon">🚀</span>
+                            管理者としてログイン
+                        </button>
+                    </form>
+
+                    <!-- エラーメッセージ -->
+                    <div id="error-message" class="error-message" style="display: none;"></div>
+                </div>
+
+                <!-- 管理者機能案内 -->
+                <div class="admin-features">
+                    <h3>🎛️ 管理者機能</h3>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <div class="feature-icon">📊</div>
+                            <div class="feature-content">
+                                <h4>ダッシュボード</h4>
+                                <p>システム全体の状況を一覧表示</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">👥</div>
+                            <div class="feature-content">
+                                <h4>ユーザー管理</h4>
+                                <p>学生・保護者情報の管理</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <div class="feature-content">
+                                <h4>予約管理</h4>
+                                <p>面談予約の確認・調整</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h4>チャット監視</h4>
+                                <p>チャット機能の管理・監視</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📈</div>
+                            <div class="feature-content">
+                                <h4>レポートと分析</h4>
+                                <p>各種データの分析とレポート生成</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚙️</div>
+                            <div class="feature-content">
+                                <h4>システム設定</h4>
+                                <p>システム全体の設定と管理</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- デモアカウント情報 -->
+        <div class="demo-info">
+            <div class="demo-card">
+                <h4>🧪 デモアカウント</h4>
+                <div class="demo-account">
+                    <div class="demo-credentials">
+                        <div class="credential-item">
+                            <span class="credential-label">管理者ID:</span>
+                            <span class="credential-value">admin</span>
+                        </div>
+                        <div class="credential-item">
+                            <span class="credential-label">パスワード:</span>
+                            <span class="credential-value">admin123</span>
+                        </div>
+                    </div>
+                    <p class="demo-note">※ デモ環境用のアカウントです</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 PTSI幼稚園管理システム - Administrator Portal</p>
+                <div class="footer-links">
+                    <a href="/help" class="footer-link">ヘルプ</a>
+                    <a href="/contact" class="footer-link">サポート</a>
+                    <a href="/privacy" class="footer-link">プライバシー</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="admin-login-new.js"></script>
+</body>
+</html>

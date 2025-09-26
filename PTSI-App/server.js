@@ -51,6 +51,11 @@ app.use('/admin-login', express.static(path.join(__dirname, 'admin-login')));
 app.use('/admin-dashboard', express.static(path.join(__dirname, 'admin-dashboard')));
 app.use('/manuals', express.static(path.join(__dirname, 'manuals')));
 
+// 新しいログインシステムの静的ファイル配信
+app.use('/login-select', express.static(path.join(__dirname, 'login-select')));
+app.use('/parent-login', express.static(path.join(__dirname, 'parent-login')));
+app.use('/admin-login-new', express.static(path.join(__dirname, 'admin-login-new')));
+
 // 各ディレクトリ内の唯一のHTMLファイルを直接開く
 app.get('/chart', (req, res) => {
   res.sendFile(path.join(__dirname, 'chart', 'index.html'));
@@ -60,6 +65,20 @@ app.get('/check-reservation', (req, res) => {
   res.sendFile(path.join(__dirname, 'check-reservation', 'check-reservation.html'));
 });
 
+// 新しいログインシステムのルーティング
+app.get('/login-select', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login-select', 'login-select.html'));
+});
+
+app.get('/parent-login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'parent-login', 'parent-login.html'));
+});
+
+app.get('/admin-login-new', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-login-new', 'admin-login-new.html'));
+});
+
+// 従来のログインページ（管理者用として維持）
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login', 'login.html'));
 });
@@ -80,9 +99,9 @@ app.get('/admin-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin-dashboard', 'admin-dashboard.html'));
 });
 
-// ルートパスへのアクセス時に/loginにリダイレクトする
+// ルートパスへのアクセス時にログイン選択ページにリダイレクトする
 app.get('/', (req, res) => {
-  res.redirect('/login');
+  res.redirect('/login-select');
 });
 
 

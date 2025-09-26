@@ -1,0 +1,517 @@
+/* 保護者ログインページ専用スタイル */
+
+/* 基本設定 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ヘッダー */
+.header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 2rem 0;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.app-title {
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.app-subtitle {
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+}
+
+/* メインコンテナ */
+.login-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+/* ログインメイン */
+.login-main {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+/* ログインフォーム */
+.login-form-container {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 3rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.form-title {
+    font-size: 2.2rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.form-description {
+    font-size: 1.3rem;
+    color: #6c757d;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.input-label {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.label-icon {
+    font-size: 1.6rem;
+}
+
+.form-input {
+    padding: 1.2rem 1.5rem;
+    font-size: 1.4rem;
+    border: 2px solid #e9ecef;
+    border-radius: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.login-btn {
+    background: linear-gradient(45deg, #4CAF50, #8BC34A);
+    color: white;
+    border: none;
+    padding: 1.5rem 2rem;
+    font-size: 1.6rem;
+    font-weight: bold;
+    border-radius: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.btn-icon {
+    font-size: 1.8rem;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: 0.5rem;
+    display: none;
+}
+
+/* 機能セクション */
+.features-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.features-title {
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-item {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.feature-content h4 {
+    font-size: 1.4rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.feature-content p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+/* サイドバー情報 */
+.sidebar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.info-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    font-size: 1.6rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+/* デモアカウント */
+.demo-account {
+    border-left: 4px solid #4CAF50;
+}
+
+.demo-credentials {
+    background: #f8f9fa;
+    border-radius: 0.8rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.credential-item {
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.credential-item strong {
+    color: #2c3e50;
+}
+
+.demo-note {
+    font-size: 1.1rem;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+/* ヘルプセクション */
+.help-section {
+    border-left: 4px solid #2196F3;
+}
+
+.help-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.help-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.help-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.help-content strong {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+.help-content p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.help-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.help-link:hover {
+    text-decoration: underline;
+}
+
+/* お知らせセクション */
+.news-section {
+    border-left: 4px solid #ff9800;
+}
+
+.news-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.news-item {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.news-date {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.news-content strong {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+.news-content p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+/* ナビゲーション */
+.navigation {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    margin: 2rem auto 0;
+    max-width: 1200px;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.3rem;
+    font-weight: 500;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-icon {
+    font-size: 1.6rem;
+}
+
+/* フッター */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.footer-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 1024px) {
+    .login-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .sidebar-info {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 1.5rem 0;
+    }
+    
+    .app-title {
+        font-size: 2.4rem;
+    }
+    
+    .app-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .login-container {
+        padding: 2rem 1rem;
+    }
+    
+    .login-form-container {
+        padding: 2rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .navigation {
+        flex-direction: column;
+        gap: 1rem;
+        margin: 1rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: 0 1rem;
+    }
+    
+    .app-title {
+        font-size: 2rem;
+    }
+    
+    .login-container {
+        padding: 1.5rem 1rem;
+    }
+    
+    .login-form-container,
+    .features-section,
+    .info-card {
+        padding: 1.5rem;
+    }
+    
+    .form-title {
+        font-size: 1.8rem;
+    }
+    
+    .form-input {
+        padding: 1rem;
+        font-size: 1.3rem;
+    }
+    
+    .login-btn {
+        padding: 1.2rem;
+        font-size: 1.4rem;
+    }
+    
+    .navigation {
+        margin: 0.5rem;
+        padding: 1rem;
+    }
+    
+    .nav-link {
+        font-size: 1.2rem;
+        padding: 0.6rem 1rem;
+    }
+}
+
+/* アニメーション */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-form-container {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.features-section {
+    animation: slideInUp 0.6s ease-out 0.2s both;
+}
+
+.info-card {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.info-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.info-card:nth-child(3) {
+    animation-delay: 0.4s;
+}
