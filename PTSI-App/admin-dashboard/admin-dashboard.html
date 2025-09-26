@@ -31,6 +31,7 @@
                     <li><a href="/reservation-settings" class="menu-item">⚙️ 予約設定</a></li>
                     <li><a href="#chat" class="menu-item" onclick="goToChat()">保護者チャット</a></li>
                     <li><a href="#staff-chat" class="menu-item" onclick="goToStaffChat()">職員チャット</a></li>
+                    <li><a href="#manuals" onclick="showSection('manuals')" class="menu-item">📖 マニュアル</a></li>
                 </ul>
             </div>
         </div>
@@ -345,6 +346,110 @@
                         </label>
                     </div>
                     <button onclick="saveScheduleSettings()" class="save-button">💾 設定保存</button>
+                </div>
+            </div>
+
+            <!-- マニュアルセクション -->
+            <div id="manuals-section" class="content-section">
+                <h2>📖 マニュアル・ドキュメント</h2>
+                
+                <div class="manuals-grid">
+                    <!-- 運営者向けマニュアル -->
+                    <div class="manual-card admin-only">
+                        <div class="manual-icon">🔒</div>
+                        <div class="manual-content">
+                            <h3>運営者向けマニュアル</h3>
+                            <p class="manual-description">
+                                システム運用、管理機能、セキュリティ設定に関する詳細なマニュアルです。
+                                管理者専用のアクセス制限付きコンテンツが含まれています。
+                            </p>
+                            <div class="manual-features">
+                                <span class="feature-tag">🔐 管理者限定</span>
+                                <span class="feature-tag">⚙️ システム設定</span>
+                                <span class="feature-tag">🛡️ セキュリティ</span>
+                            </div>
+                            <div class="manual-actions">
+                                <button onclick="downloadAdminManual()" class="download-btn admin-manual-btn">
+                                    <span class="btn-icon">📖</span>
+                                    運営者マニュアル表示
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 保護者向けマニュアル -->
+                    <div class="manual-card">
+                        <div class="manual-icon">👥</div>
+                        <div class="manual-content">
+                            <h3>保護者向けマニュアル</h3>
+                            <p class="manual-description">
+                                予約システムの使い方、チャット機能、よくある質問などを
+                                わかりやすく説明したマニュアルです。
+                            </p>
+                            <div class="manual-features">
+                                <span class="feature-tag">📅 予約方法</span>
+                                <span class="feature-tag">💬 チャット</span>
+                                <span class="feature-tag">❓ FAQ</span>
+                            </div>
+                            <div class="manual-actions">
+                                <button onclick="downloadParentManual()" class="download-btn parent-manual-btn">
+                                    <span class="btn-icon">📖</span>
+                                    保護者マニュアル表示
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- システム情報 -->
+                    <div class="manual-card">
+                        <div class="manual-icon">🖥️</div>
+                        <div class="manual-content">
+                            <h3>システム情報</h3>
+                            <p class="manual-description">
+                                現在のシステムバージョン、最新の更新情報、
+                                技術的な仕様に関する情報です。
+                            </p>
+                            <div class="system-info">
+                                <div class="info-item">
+                                    <strong>バージョン:</strong> v2.4.0
+                                </div>
+                                <div class="info-item">
+                                    <strong>最終更新:</strong> <span id="last-update">2024年12月</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>サポート:</strong> 管理者チャットまたは直接連絡
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- セキュリティ注意事項 -->
+                <div class="security-notice">
+                    <h3>🔒 セキュリティとプライバシー</h3>
+                    <div class="notice-content">
+                        <div class="notice-item">
+                            <span class="notice-icon">⚠️</span>
+                            <div class="notice-text">
+                                <strong>管理者認証:</strong> 運営者向けマニュアルは管理者認証が必要です。
+                                適切な権限を持つユーザーのみがアクセスできます。
+                            </div>
+                        </div>
+                        <div class="notice-item">
+                            <span class="notice-icon">🔐</span>
+                            <div class="notice-text">
+                                <strong>機密情報:</strong> システム設定や個人情報に関する内容は
+                                適切に保護されています。
+                            </div>
+                        </div>
+                        <div class="notice-item">
+                            <span class="notice-icon">📋</span>
+                            <div class="notice-text">
+                                <strong>利用規約:</strong> マニュアルの内容は適切に使用し、
+                                機密情報の外部共有は禁止されています。
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

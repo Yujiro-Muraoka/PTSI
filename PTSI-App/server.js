@@ -249,7 +249,84 @@ app.post('/passwordAuthentication', (req, res) => {
 });
 
 /**
- * 管理者認証API
+ * 統一ログイン認証API
+ * 保護者と管理者の両方のログインを処理
+ */
+app.post('/login', (req, res) => {
+  const { adminId, adminPassword, studentId, password, loginType } = req.body;
+  
+  if (loginType === 'admin') {
+    // 管理者ログイン処理
+    if (!adminId || !adminPassword) {
+      return res.status(400).json({ success: false, message: '管理者IDとパスワードを入力してください。' });
+    }
+    
+    console.log(`Admin login attempt for adminId: ${adminId}`);
+
+    // admin-login.csvからデータを読み込む
+    const adminLoginPath = path.join(__dirname, 'DB', 'admin-login.csv');
+    fs.readFile(adminLoginPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('管理者ログインファイル読み込みエラー:', err);
+            return res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+        }
+
+        const rows = data.split('\n').map(row => row.split(','));
+        const admin = rows.slice(1).find(row => row[0] === adminId && row[1].trim() === adminPassword);
+
+        if (admin) {
+            const adminData = {
+                id: admin[0],
+                name: admin[2],
+                role: admin[3]
+            };
+            res.json({ 
+                success: true, 
+                user: adminData,
+                adminName: adminData.name,
+                adminRole: adminData.role,
+                userType: 'admin'
+            });
+        } else {
+            res.status(401).json({ success: false, message: '管理者IDまたはパスワードが正しくありません。' });
+        }
+    });
+  } else {
+    // 保護者ログイン処理
+    if (!studentId || !password) {
+      return res.status(400).json({ success: false, message: '学籍番号とパスワードを入力してください。' });
+    }
+    
+    console.log(`Parent login attempt for studentId: ${studentId}`);
+
+    const loginPath = path.join(__dirname, 'DB', 'login.csv');
+    fs.readFile(loginPath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('保護者ログインファイル読み込みエラー:', err);
+            return res.status(500).json({ success: false, message: 'サーバーエラーが発生しました。' });
+        }
+
+        const rows = data.split('\n').map(row => row.split(','));
+        const user = rows.slice(1).find(row => row[0] === studentId && row[1].trim() === password);
+
+        if (user) {
+            res.json({ 
+                success: true,
+                user: {
+                  id: user[0],
+                  name: user[2] || '保護者'
+                },
+                userType: 'parent'
+            });
+        } else {
+            res.status(401).json({ success: false, message: 'パスワードが正しくありません。' });
+        }
+    });
+  }
+});
+
+/**
+ * 管理者認証API（下位互換性のため維持）
  * 管理者IDとパスワードを照合してログイン認証を行う
  */
 app.post('/adminAuthentication', (req, res) => {
@@ -639,10 +716,30 @@ app.get('/download/parent-manual', (req, res) => {
 
 /**
  * 運営者向けマニュアルHTML提供API
- * ブラウザの印刷機能でPDF生成できるHTMLを提供
+ * 管理者認証が必要なAPI - ブラウザの印刷機能でPDF生成できるHTMLを提供
  */
 app.get('/download/admin-manual', (req, res) => {
   console.log('運営者向けマニュアルHTMLリクエストを受信');
+  
+  // 管理者認証トークンをチェック
+  const authToken = req.headers.authorization || req.query.token;
+  
+  if (!authToken) {
+    return res.status(401).json({ 
+      success: false, 
+      message: '管理者認証が必要です。ログインしてからアクセスしてください。' 
+    });
+  }
+  
+  // トークンの検証（簡易実装）
+  // 実際の実装では、よりセキュアなトークン検証を行う
+  if (!authToken.startsWith('admin_')) {
+    return res.status(403).json({ 
+      success: false, 
+      message: 'アクセス権限がありません。管理者としてログインしてください。' 
+    });
+  }
+  
   try {
     const htmlPath = path.join(__dirname, 'manuals', 'admin-manual.html');
     
@@ -682,6 +779,31 @@ app.get('/download/admin-manual', (req, res) => {
     console.error('マニュアル提供エラー:', error);
     res.status(500).send('マニュアルの読み込みに失敗しました。');
   }
+});
+
+/**
+ * 管理者認証トークン生成API
+ */
+app.post('/api/admin-token', (req, res) => {
+  const { adminId, adminRole } = req.body;
+  
+  if (!adminId || !adminRole) {
+    return res.status(400).json({ 
+      success: false, 
+      message: '管理者情報が不足しています。' 
+    });
+  }
+  
+  // 簡易トークン生成（実際の実装では、JWTなどを使用）
+  const token = `admin_${adminId}_${Date.now()}`;
+  
+  console.log(`管理者認証トークン生成: ${adminId} -> ${token}`);
+  
+  res.json({ 
+    success: true, 
+    token: token,
+    expiresIn: '24h'
+  });
 });
 
 // エラーハンドリングミドルウェア

@@ -1020,3 +1020,116 @@ function goToChat() {
 function goToStaffChat() {
     window.location.href = '/staff-chat';
 }
+
+/**
+ * 運営者向けマニュアルをダウンロード/表示
+ * 管理者認証トークンを使用してセキュアにアクセス
+ */
+async function downloadAdminManual() {
+    const btn = document.querySelector('.admin-manual-btn');
+    const originalText = btn.innerHTML;
+    
+    try {
+        // ローディング状態に変更
+        btn.innerHTML = '<span class="btn-icon">⏳</span>認証中...';
+        btn.disabled = true;
+        
+        // 管理者認証トークンを取得
+        const adminToken = localStorage.getItem('adminToken');
+        
+        if (!adminToken) {
+            throw new Error('管理者認証が必要です。再ログインしてください。');
+        }
+        
+        // 認証付きでマニュアルにアクセス
+        const manualUrl = `/download/admin-manual?token=${encodeURIComponent(adminToken)}`;
+        
+        // 新しいタブで開く
+        const newWindow = window.open(manualUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        
+        if (!newWindow) {
+            throw new Error('ポップアップブロッカーが有効になっています。ポップアップを許可してください。');
+        }
+        
+        // 成功状態に変更
+        btn.innerHTML = '<span class="btn-icon">✅</span>マニュアル表示完了';
+        btn.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+        
+        // 3秒後に元に戻す
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 3000);
+        
+    } catch (error) {
+        console.error('運営者マニュアルアクセスエラー:', error);
+        
+        // エラー状態に変更
+        btn.innerHTML = '<span class="btn-icon">❌</span>アクセスエラー';
+        btn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+        
+        // エラーメッセージを表示
+        alert(`マニュアルへのアクセスに失敗しました：\n${error.message}`);
+        
+        // 3秒後に元に戻す
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 3000);
+    }
+}
+
+/**
+ * 保護者向けマニュアルをダウンロード/表示
+ * 認証不要でアクセス可能
+ */
+async function downloadParentManual() {
+    const btn = document.querySelector('.parent-manual-btn');
+    const originalText = btn.innerHTML;
+    
+    try {
+        // ローディング状態に変更
+        btn.innerHTML = '<span class="btn-icon">⏳</span>読み込み中...';
+        btn.disabled = true;
+        
+        // 保護者向けマニュアルにアクセス（認証不要）
+        const manualUrl = '/download/parent-manual';
+        
+        // 新しいタブで開く
+        const newWindow = window.open(manualUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        
+        if (!newWindow) {
+            throw new Error('ポップアップブロッカーが有効になっています。ポップアップを許可してください。');
+        }
+        
+        // 成功状態に変更
+        btn.innerHTML = '<span class="btn-icon">✅</span>マニュアル表示完了';
+        btn.style.background = 'linear-gradient(45deg, #3498db, #2980b9)';
+        
+        // 3秒後に元に戻す
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 3000);
+        
+    } catch (error) {
+        console.error('保護者マニュアルアクセスエラー:', error);
+        
+        // エラー状態に変更
+        btn.innerHTML = '<span class="btn-icon">❌</span>アクセスエラー';
+        btn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+        
+        // エラーメッセージを表示
+        alert(`マニュアルへのアクセスに失敗しました：\n${error.message}`);
+        
+        // 3秒後に元に戻す
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 3000);
+    }
+}

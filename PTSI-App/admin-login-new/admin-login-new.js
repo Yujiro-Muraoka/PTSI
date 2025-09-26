@@ -48,6 +48,27 @@ async function adminLogin() {
             
             // セッション情報を保存
             if (result.user) {
+                // 管理者認証トークンを生成・保存
+                try {
+                    const tokenResponse = await fetch('/api/admin-token', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            adminId: result.user.id,
+                            adminRole: result.user.role
+                        })
+                    });
+                    
+                    const tokenResult = await tokenResponse.json();
+                    if (tokenResult.success) {
+                        localStorage.setItem('adminToken', tokenResult.token);
+                        console.log('管理者認証トークンを保存しました');
+                    }
+                } catch (tokenError) {
+                    console.error('トークン生成エラー:', tokenError);
+                }
                 sessionStorage.setItem('adminUser', JSON.stringify(result.user));
             }
             
