@@ -8,7 +8,14 @@
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="parent-login.css">
 </head>
-<body>
+<body class="parent-login-page">
+    <div class="background-illustration" aria-hidden="true">
+        <span class="bubble bubble-1"></span>
+        <span class="bubble bubble-2"></span>
+        <span class="bubble bubble-3"></span>
+        <span class="bubble bubble-4"></span>
+    </div>
+
     <div class="header">
         <div class="header-content">
             <h1 class="app-title">👨‍👩‍👧‍👦 保護者ログイン</h1>
@@ -25,29 +32,37 @@
                     
                     <form id="parent-login-form" class="form-content">
                         <div class="input-group">
-                            <label for="student-id" class="input-label">
-                                <span class="label-icon">🎓</span>
-                                学生ID
-                            </label>
-                            <input type="text" 
-                                   id="student-id" 
-                                   name="student-id" 
-                                   placeholder="例: 22001" 
-                                   class="form-input"
-                                   required>
+                            <label for="student-id" class="input-label">学生ID</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon" aria-hidden="true">🎓</span>
+                                <input type="text" 
+                                       id="student-id" 
+                                       name="student-id" 
+                                       placeholder="例: 22001" 
+                                       class="form-input"
+                                       autocomplete="username"
+                                       inputmode="numeric"
+                                       required>
+                            </div>
                         </div>
                         
                         <div class="input-group">
-                            <label for="password" class="input-label">
-                                <span class="label-icon">🔒</span>
-                                パスワード
-                            </label>
-                            <input type="password" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="パスワードを入力してください" 
-                                   class="form-input"
-                                   required>
+                            <label for="password" class="input-label">パスワード</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon" aria-hidden="true">🔒</span>
+                                <input type="password" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="パスワードを入力してください" 
+                                       class="form-input"
+                                       autocomplete="current-password"
+                                       required>
+                                <button type="button" 
+                                        class="password-toggle" 
+                                        aria-label="パスワードを表示"
+                                        onclick="togglePasswordVisibility()">👁️</button>
+                            </div>
+                            <p class="input-hint">半角数字4桁の初期パスワードは園から配布された用紙をご確認ください</p>
                         </div>
                         
                         <button type="button" 
@@ -57,7 +72,7 @@
                             ログイン
                         </button>
                         
-                        <div id="error-message" class="error-message"></div>
+                        <div id="error-message" class="error-message" role="alert" aria-live="assertive"></div>
                     </form>
                 </div>
             </div>
@@ -92,6 +107,29 @@
                         <div class="feature-content">
                             <h4>申請履歴</h4>
                             <p>過去の申請内容や承認状況を一覧で確認できます</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="support-highlights">
+                    <div class="highlight-item">
+                        <span class="highlight-icon">⏱️</span>
+                        <div>
+                            <h4>平均2分で申請完了</h4>
+                            <p>選択と送信だけのシンプルなステップで手続きが完了します。</p>
+                        </div>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">📱</span>
+                        <div>
+                            <h4>スマホでも快適</h4>
+                            <p>片手入力に対応したUIで、外出先でもスムーズに操作できます。</p>
+                        </div>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">🔔</span>
+                        <div>
+                            <h4>最新情報をお届け</h4>
+                            <p>園からのお知らせは自動で表示。重要なお知らせを見逃しません。</p>
                         </div>
                     </div>
                 </div>
@@ -160,6 +198,10 @@
                             <p>統計表示機能を強化しました</p>
                         </div>
                     </div>
+                </div>
+                <div class="news-footer">
+                    <span class="news-pill">最新版システム</span>
+                    <span class="news-pill secondary">安心のセキュリティ</span>
                 </div>
             </div>
         </div>

@@ -28,7 +28,7 @@ function initializeForm() {
     }
     
     // ラジオボタンのイベントリスナーを設定
-    const radioInputs = document.querySelectorAll('input[name="radio"]');
+    const radioInputs = document.querySelectorAll('.radio-input');
     const whiteBox = document.getElementById('white-box');
     
     radioInputs.forEach(radio => {
@@ -114,24 +114,33 @@ function getDefaultReservationOptions() {
 /**
  * 動的オプションを生成
  */
-function generateDynamicOptions(container, title, options, typePrefix) {
-    if (!options || options.length === 0) {
-        container.innerHTML = `<p class="no-options">３：${title} - 本日は受付停止中です</p>`;
+function generateDynamicOptions(container, meta, options) {
+    if (!meta) {
+        container.innerHTML = '<p class="details-placeholder">予約タイプを選択してください。</p>';
         return;
     }
-    
-    let html = `<p>３：${title}</p>`;
-    options.forEach((option, index) => {
-        const value = `${typePrefix}-${index + 1}`;
-        html += `
-            <label class="Radio">
-                <input name="radio" class="Radio-Input" type="radio" value="${value}">
-                <span class="Radio-Text">${option}</span>
-            </label>
-        `;
-    });
-    
-    container.innerHTML = html;
+
+    if (!options || options.length === 0) {
+        container.innerHTML = `<p class="details-placeholder">３：${meta.title}は本日受付を終了しました。お急ぎの場合は園までご連絡ください。</p>`;
+        return;
+    }
+
+    const optionItems = options
+        .map(option => `<li class="details-option">${option}</li>`)
+        .join('');
+
+    container.innerHTML = `
+        <div class="details-header">
+            <span class="details-icon" aria-hidden="true">${meta.icon}</span>
+            <div>
+                <p class="details-title">３：${meta.title}</p>
+                <p class="details-subtitle">${meta.subtitle}</p>
+            </div>
+        </div>
+        <ul class="details-options">
+            ${optionItems}
+        </ul>
+    `;
 }
 
 /**
@@ -141,21 +150,28 @@ function handleReservationTypeChange(selectedValue, container) {
     // 以前の選択内容をクリア
     container.innerHTML = '';
 
+    const metaMap = {
+        type1: { icon: '🕐', title: '遅刻申請', subtitle: '到着予定時刻を事前にお知らせください。以下はよくある選択例です。' },
+        type2: { icon: '🏠', title: '早退申請', subtitle: 'お迎え予定時刻にあわせてご連絡ください。' },
+        type3: { icon: '🎒', title: '預かり保育予約', subtitle: 'ご都合に合わせて柔軟に対応いたします。' },
+        type4: { icon: '⏰', title: '延長保育予約', subtitle: '延長時間帯とお迎え予定時刻をご入力ください。' }
+    };
+
     switch (selectedValue) {
         case 'type1':
-            generateDynamicOptions(container, '遅刻申請', reservationOptions.lateArrival || [], 'type1');
+            generateDynamicOptions(container, metaMap.type1, reservationOptions.lateArrival || []);
             break;
         case 'type2':
-            generateDynamicOptions(container, '早退申請', reservationOptions.earlyDeparture || [], 'type2');
+            generateDynamicOptions(container, metaMap.type2, reservationOptions.earlyDeparture || []);
             break;
         case 'type3':
-            generateDynamicOptions(container, '預かり保育予約', reservationOptions.childcare || [], 'type3');
+            generateDynamicOptions(container, metaMap.type3, reservationOptions.childcare || []);
             break;
         case 'type4':
-            generateDynamicOptions(container, '延長保育予約', reservationOptions.extendedCare || [], 'type4');
+            generateDynamicOptions(container, metaMap.type4, reservationOptions.extendedCare || []);
             break;
         default:
-            container.innerHTML = '<p>予約タイプを選択してください。</p>';
+            container.innerHTML = '<p class="details-placeholder">予約タイプを選択すると、ここに詳細が表示されます。</p>';
             break;
     }
 }
@@ -165,26 +181,28 @@ function handleReservationTypeChange(selectedValue, container) {
  * DOMが読み込まれた後にイベントリスナーを設定
  */
 document.addEventListener('DOMContentLoaded', function () {
-    const radioButtons = document.querySelectorAll('.Radio-Input');
+    const radioButtons = document.querySelectorAll('.radio-input');
     const newRadioContainer = document.getElementById('white-box');
     const dateInput = document.getElementById('date');
     
     // 日付変更時に予約オプションを更新
-    dateInput.addEventListener('change', async function() {
-        const selectedDate = this.value;
-        if (selectedDate) {
-            await loadReservationOptions(selectedDate);
-            // 現在選択されている予約タイプがあれば再表示
-            const selectedType = document.querySelector('input[name="radio"]:checked');
-            if (selectedType && selectedType.value.startsWith('type')) {
-                handleReservationTypeChange(selectedType.value, newRadioContainer);
+    if (dateInput) {
+        dateInput.addEventListener('change', async function() {
+            const selectedDate = this.value;
+            if (selectedDate) {
+                await loadReservationOptions(selectedDate);
+                // 現在選択されている予約タイプがあれば再表示
+                const selectedType = document.querySelector('input[name="radio"]:checked');
+                if (selectedType && selectedType.value.startsWith('type')) {
+                    handleReservationTypeChange(selectedType.value, newRadioContainer);
+                }
             }
-        }
-    });
-    
-    // 初期日付の予約オプションを読み込み
-    const initialDate = dateInput.value || new Date().toISOString().split('T')[0];
-    loadReservationOptions(initialDate);
+        });
+
+        // 初期日付の予約オプションを読み込み
+        const initialDate = dateInput.value || new Date().toISOString().split('T')[0];
+        loadReservationOptions(initialDate);
+    }
 
     radioButtons.forEach(function (radioButton) {
         radioButton.addEventListener('change', function (event) {
@@ -311,4 +329,11 @@ function logout() {
     document.cookie = "studentID=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     // ログインページにリダイレクト
     window.location.href = "/login-select";
+}
+
+/**
+ * 新UIの送信ボタン用ハンドラー
+ */
+function sendData() {
+    submitForm();
 }

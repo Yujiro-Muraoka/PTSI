@@ -89,6 +89,7 @@ function showError(message) {
     const errorElement = document.getElementById('error-message');
     errorElement.textContent = message;
     errorElement.style.display = 'block';
+    errorElement.classList.add('is-active');
     errorElement.style.animation = 'shake 0.5s ease-in-out';
     
     // シェイクアニメーション後にクリア
@@ -102,7 +103,9 @@ function showError(message) {
  */
 function hideError() {
     const errorElement = document.getElementById('error-message');
+    errorElement.textContent = '';
     errorElement.style.display = 'none';
+    errorElement.classList.remove('is-active');
 }
 
 /**
@@ -135,42 +138,22 @@ function createDemoButton() {
     button.type = 'button';
     button.className = 'demo-fill-btn';
     button.innerHTML = '💡 デモアカウント自動入力';
-    button.style.cssText = `
-        background: linear-gradient(45deg, #2196F3, #03A9F4);
-        color: white;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        font-size: 1.2rem;
-        border-radius: 0.6rem;
-        cursor: pointer;
-        margin-top: 1rem;
-        width: 100%;
-        transition: all 0.3s ease;
-    `;
     
     button.addEventListener('click', function() {
         document.getElementById('student-id').value = '22001';
         document.getElementById('password').value = '22001';
+        setInputState(document.getElementById('student-id'), 'valid');
+        setInputState(document.getElementById('password'), 'valid');
         
         // ボタンのフィードバック
         const originalText = button.innerHTML;
         button.innerHTML = '✅ 入力完了！';
-        button.style.background = 'linear-gradient(45deg, #4CAF50, #66BB6A)';
+        button.classList.add('is-success');
         
         setTimeout(() => {
             button.innerHTML = originalText;
-            button.style.background = 'linear-gradient(45deg, #2196F3, #03A9F4)';
+            button.classList.remove('is-success');
         }, 1500);
-    });
-    
-    button.addEventListener('mouseover', function() {
-        button.style.transform = 'translateY(-2px)';
-        button.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.3)';
-    });
-    
-    button.addEventListener('mouseout', function() {
-        button.style.transform = 'translateY(0)';
-        button.style.boxShadow = 'none';
     });
     
     return button;
@@ -207,9 +190,11 @@ function togglePasswordVisibility() {
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         toggleBtn.innerHTML = '🙈';
+        toggleBtn.setAttribute('aria-label', 'パスワードを隠す');
     } else {
         passwordInput.type = 'password';
         toggleBtn.innerHTML = '👁️';
+        toggleBtn.setAttribute('aria-label', 'パスワードを表示');
     }
 }
 
@@ -223,25 +208,25 @@ document.addEventListener('DOMContentLoaded', function() {
     studentIdInput.addEventListener('input', function() {
         const value = this.value.trim();
         if (value && !/^\d+$/.test(value)) {
-            this.style.borderColor = '#e74c3c';
             showInputError(this, '学生IDは数字のみで入力してください');
+            setInputState(this, 'error');
         } else {
-            this.style.borderColor = '#4CAF50';
             hideInputError(this);
+            setInputState(this, value ? 'valid' : 'default');
         }
     });
     
     passwordInput.addEventListener('input', function() {
         const value = this.value.trim();
         if (value.length > 0 && value.length < 3) {
-            this.style.borderColor = '#ff9800';
             showInputError(this, 'パスワードは3文字以上で入力してください');
+            setInputState(this, 'warning');
         } else if (value.length >= 3) {
-            this.style.borderColor = '#4CAF50';
             hideInputError(this);
+            setInputState(this, 'valid');
         } else {
-            this.style.borderColor = '#e9ecef';
             hideInputError(this);
+            setInputState(this, 'default');
         }
     });
 });
@@ -250,28 +235,48 @@ document.addEventListener('DOMContentLoaded', function() {
  * 入力エラー表示
  */
 function showInputError(input, message) {
-    let errorSpan = input.nextElementSibling;
-    if (!errorSpan || !errorSpan.classList.contains('input-error')) {
+    const group = input.closest('.input-group');
+    let errorSpan = group.querySelector('.input-error');
+    if (!errorSpan) {
         errorSpan = document.createElement('span');
         errorSpan.className = 'input-error';
-        errorSpan.style.cssText = `
-            color: #e74c3c;
-            font-size: 1.1rem;
-            margin-top: 0.3rem;
-            display: block;
-        `;
-        input.parentNode.appendChild(errorSpan);
+        group.appendChild(errorSpan);
     }
     errorSpan.textContent = message;
+    errorSpan.style.display = 'block';
 }
 
 /**
  * 入力エラー非表示
  */
 function hideInputError(input) {
-    const errorSpan = input.nextElementSibling;
-    if (errorSpan && errorSpan.classList.contains('input-error')) {
-        errorSpan.remove();
+    const group = input.closest('.input-group');
+    const errorSpan = group.querySelector('.input-error');
+    if (errorSpan) {
+        errorSpan.textContent = '';
+        errorSpan.style.display = 'none';
+    }
+}
+
+/**
+ * 入力状態のスタイリング
+ */
+function setInputState(input, state) {
+    const wrapper = input.closest('.input-wrapper');
+    if (!wrapper) return;
+    wrapper.classList.remove('is-error', 'is-valid', 'is-warning');
+    switch (state) {
+        case 'error':
+            wrapper.classList.add('is-error');
+            break;
+        case 'valid':
+            wrapper.classList.add('is-valid');
+            break;
+        case 'warning':
+            wrapper.classList.add('is-warning');
+            break;
+        default:
+            break;
     }
 }
 
