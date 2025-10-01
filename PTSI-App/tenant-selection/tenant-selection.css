@@ -179,6 +179,18 @@ body {
     transform: scaleX(1);
 }
 
+.tenant-card:is(:focus-visible, .is-focused) {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 6px;
+}
+
+/* 非アクティブ園は視覚的にも操作不可を示す */
+.tenant-card[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.75;
+    filter: grayscale(0.2);
+}
+
 .tenant-icon {
     font-size: 4rem;
     margin-bottom: 1.5rem;
@@ -263,6 +275,17 @@ body {
     box-shadow: var(--shadow-light);
 }
 
+/* ログインボタンの無効化スタイル */
+.tenant-btn.disabled,
+.tenant-btn:disabled {
+    background: var(--bg-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
 /* ローディング状態 */
 .loading-state {
     text-align: center;
@@ -280,9 +303,64 @@ body {
     margin: 0 auto 2rem auto;
 }
 
+/* スケルトンを含む拡張ローディング表示 */
+.loading-state.enhanced {
+    padding-bottom: 2rem;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* カードレイアウトに合わせたスケルトン骨組み */
+.skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    opacity: 0.8;
+}
+
+/* カード全体を模したプレースホルダー */
+.skeleton-card {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-light);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.skeleton-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #f0f3f5 25%, #f7f9fb 50%, #f0f3f5 75%);
+    animation: pulse 1.5s ease-in-out infinite;
+    margin: 0 auto;
+}
+
+.skeleton-line {
+    height: 14px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f0f3f5 25%, #f7f9fb 50%, #f0f3f5 75%);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line.large {
+    height: 18px;
+    margin-top: 1rem;
+}
+
+.skeleton-line.small {
+    width: 50%;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
 
 /* 管理者アクション */
@@ -320,6 +398,52 @@ body {
 
 .btn-icon {
     font-size: 1.6rem;
+}
+
+/* APIエラー時のダイアログ風表示 */
+.error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.error-state h3 {
+    font-size: 2rem;
+    margin: 1rem 0;
+    color: var(--text-primary);
+}
+
+.error-state p {
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+}
+
+.error-icon {
+    font-size: 3rem;
+}
+
+.retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 2.2rem;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary-color), #2980b9);
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.retry-btn:hover {
+    transform: translateY(-2px);
 }
 
 /* ダイアログ */

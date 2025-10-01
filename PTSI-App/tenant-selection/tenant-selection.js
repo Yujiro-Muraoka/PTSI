@@ -9,11 +9,55 @@
 let tenants = [];
 let currentTenant = null;
 
+// 初期ロード中のスケルトン表示を生成
+function renderLoadingState() {
+    const grid = document.getElementById('tenant-grid');
+    if (!grid) return;
+    grid.dataset.state = 'loading';
+    const skeletonCard = () => `
+        <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-line large"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line small"></div>
+        </div>
+    `;
+    grid.innerHTML = `
+        <div class="loading-state enhanced">
+            <div class="loading-spinner"></div>
+            <p>保育園一覧を読み込み中です...</p>
+        </div>
+        <div class="skeleton-grid">
+            ${Array.from({ length: 3 }).map(() => skeletonCard()).join('')}
+        </div>
+    `;
+}
+
+// 通信エラー時の再試行UIを表示
+function renderTenantsError(message) {
+    const grid = document.getElementById('tenant-grid');
+    if (!grid) return;
+    grid.dataset.state = 'error';
+    grid.innerHTML = `
+        <div class="error-state" role="alert">
+            <div class="error-icon">⚠️</div>
+            <h3>保育園一覧を表示できませんでした</h3>
+            <p>${message}</p>
+            <button type="button" class="retry-btn" onclick="loadTenants()">
+                <span class="btn-icon">↻</span>
+                再試行
+            </button>
+        </div>
+    `;
+}
+
 /**
  * ページ読み込み時の初期化
  */
 window.onload = function() {
     console.log('🏫 PTSI Multi-Tenant System v3.0.0 - Tenant Selection');
+    renderLoadingState();
     loadTenants();
     
     // URLパラメータをチェック（直接アクセス用）
@@ -30,6 +74,9 @@ window.onload = function() {
 async function loadTenants() {
     try {
         const response = await fetch('/api/tenants');
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
         const result = await response.json();
         
         if (result.success) {
@@ -37,10 +84,13 @@ async function loadTenants() {
             renderTenants();
         } else {
             showError('保育園一覧の読み込みに失敗しました: ' + result.message);
+            renderTenantsError(result.message);
         }
     } catch (error) {
         console.error('保育園一覧読み込みエラー:', error);
-        showError('サーバーとの通信に失敗しました。しばらくしてから再試行してください。');
+        const fallbackMessage = 'サーバーとの通信に失敗しました。しばらくしてから再試行してください。';
+        showError(fallbackMessage);
+        renderTenantsError(fallbackMessage);
     }
 }
 
@@ -63,6 +113,12 @@ function renderTenants() {
     
     const tenantCards = tenants.map(tenant => createTenantCard(tenant)).join('');
     grid.innerHTML = tenantCards;
+    grid.dataset.state = 'loaded';
+    // キーボード利用者にもフォーカス状態がわかるようクラス制御
+    grid.querySelectorAll('.tenant-card').forEach(card => {
+        card.addEventListener('focus', () => card.classList.add('is-focused'));
+        card.addEventListener('blur', () => card.classList.remove('is-focused'));
+    });
 }
 
 /**
@@ -71,10 +127,18 @@ function renderTenants() {
 function createTenantCard(tenant) {
     const themeClass = tenant.theme ? `theme-${tenant.theme}` : '';
     const statusClass = tenant.status === 'active' ? 'active' : 'inactive';
+    const isActive = tenant.status === 'active';
+    const ariaDisabled = isActive ? '' : 'aria-disabled="true"';
     
     return `
-        <div class="tenant-card ${themeClass} ${statusClass}" 
-             onclick="selectTenant('${tenant.id}')">
+        <article class="tenant-card ${themeClass} ${statusClass}" 
+             role="button"
+             tabindex="0"
+             ${ariaDisabled}
+             data-tenant-id="${tenant.id}"
+             aria-label="${tenant.name} にログイン"
+             onclick="selectTenant('${tenant.id}')"
+             onkeydown="handleTenantCardKeydown(event, '${tenant.id}')">
             <div class="tenant-icon">${tenant.icon || '🏫'}</div>
             <h3 class="tenant-name">${tenant.name}</h3>
             <p class="tenant-description">${tenant.description || '保育園の詳細情報はありません。'}</p>
@@ -95,16 +159,29 @@ function createTenantCard(tenant) {
             </div>
             
             <div class="tenant-actions">
-                <button class="tenant-btn primary" onclick="event.stopPropagation(); selectTenant('${tenant.id}')">
-                    <span class="btn-icon">🔑</span>
-                    ログイン
-                </button>
-                ${tenant.status === 'active' ? '' : `
+                ${isActive ? `
+                    <button class="tenant-btn primary" onclick="event.stopPropagation(); selectTenant('${tenant.id}')">
+                        <span class="btn-icon">🔑</span>
+                        ログイン
+                    </button>
+                ` : `
+                    <button class="tenant-btn primary disabled" type="button" onclick="event.stopPropagation();" disabled>
+                        <span class="btn-icon">⏳</span>
+                        準備中
+                    </button>
                     <span class="status-badge inactive">準備中</span>
                 `}
             </div>
-        </div>
+        </article>
     `;
+}
+
+// Enter/Spaceでアクセシブルにカードをクリック扱いする
+function handleTenantCardKeydown(event, tenantId) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        selectTenant(tenantId);
+    }
 }
 
 /**

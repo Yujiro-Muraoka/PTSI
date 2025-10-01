@@ -16,10 +16,14 @@ const app = express();
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+// Cookieベースのセッション制御に使用
+const cookieParser = require('cookie-parser');
 
 // ミドルウェアの設定
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+// 旧ブラウザ互換のルートで cookies を参照するため必須
+app.use(cookieParser());
 
 // 文字化け対策
 app.use(express.json({ limit: '10mb' }));
@@ -36,6 +40,16 @@ app.use((req, res, next) => {
   } else {
     next();
   }
+});
+
+// 代表的なヘッダーを通じてクリックジャッキング・XSS等を抑止
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Referrer-Policy', 'same-origin');
+  next();
 });
 
 
@@ -1409,17 +1423,9 @@ function getAdminTypeLabel(type) {
 }
 
 // 404エラーハンドリング
+// APIルート外へのアクセスを明示的に404処理（ブラウザキャッシュを禁止）
 app.use((req, res) => {
-  res.status(404).send('ページが見つかりません。');
-});
-
-// セキュリティヘッダーの追加
-app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  next();
+  res.status(404).setHeader('Cache-Control', 'no-store').send('ページが見つかりません。');
 });
 
 /**
