@@ -78,8 +78,8 @@ function getCookie(name) {
 
 // 日付の初期化はinitializeForm()で行う
 
-// 予約オプションのキャッシュ
-let reservationOptions = {};
+// 予約オプションのキャッシュ（初期値はデフォルト）
+let reservationOptions = getDefaultReservationOptions();
 
 /**
  * 指定日の予約オプションを取得
