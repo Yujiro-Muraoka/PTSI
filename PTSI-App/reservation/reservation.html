@@ -19,40 +19,72 @@
         </div>
     </div>
 
-    <div class="main-box">
-
-        <div class="container"></div>
-
-        <form id="myForm" class="info-box">
-            <div class="info-box-box">
-                <p>１：申し込む日付を選択してください</p>
-                <div class="date">
-                    <input type="date" name="date" id="date">
+    <div class="main-container">
+        <!-- 学生情報サイドバー -->
+        <div class="student-sidebar">
+            <div class="student-card">
+                <h3 class="student-title">学生情報</h3>
+                <div class="student-details">
+                    <div class="student-name" id="student-name">読み込み中...</div>
+                    <div class="student-class" id="student-class">クラス: -</div>
+                    <div class="student-id" id="student-id-display">学籍番号: -</div>
                 </div>
-                <p>２：申し込む形態を選択してください</p>
-                <label class="Radio">
-                    <input name="radio" class="Radio-Input" type="radio" value="type1">
-                    <span class="Radio-Text">遅刻申請</span>
-                </label>
-                <label class="Radio">
-                    <input name="radio" class="Radio-Input" type="radio" value="type2">
-                    <span class="Radio-Text">早退申請</span>
-                </label>
-                <label class="Radio">
-                    <input name="radio" class="Radio-Input" type="radio" value="type3">
-                    <span class="Radio-Text">預かり保育予約</span>
-                </label>
-                <label class="Radio">
-                    <input name="radio" class="Radio-Input" type="radio" value="type4">
-                    <span class="Radio-Text">延長保育予約</span>
-                </label>
             </div>
-            <div class="info-box-box">
-                <div class="white-box" id="white-box"></div>
-                <input type="button" class="send" value="申し込みを確定する" onclick="sendData()">
-            </div>
-        </form>
+        </div>
 
+        <!-- メインフォーム -->
+        <div class="form-container">
+            <form id="myForm" class="reservation-form">
+                <div class="form-section">
+                    <h2 class="section-title">📅 予約申請フォーム</h2>
+                    
+                    <div class="form-group">
+                        <label for="date" class="form-label">１：申し込む日付を選択してください</label>
+                        <input type="date" name="date" id="date" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">２：申し込む形態を選択してください</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input name="radio" class="radio-input" type="radio" value="type1">
+                                <span class="radio-text">🕐 遅刻申請</span>
+                                <span class="radio-desc">登園時間が遅れる場合</span>
+                            </label>
+                            <label class="radio-option">
+                                <input name="radio" class="radio-input" type="radio" value="type2">
+                                <span class="radio-text">🏠 早退申請</span>
+                                <span class="radio-desc">通常より早く帰宅する場合</span>
+                            </label>
+                            <label class="radio-option">
+                                <input name="radio" class="radio-input" type="radio" value="type3">
+                                <span class="radio-text">🎒 預かり保育予約</span>
+                                <span class="radio-desc">通常の保育時間後の預かり</span>
+                            </label>
+                            <label class="radio-option">
+                                <input name="radio" class="radio-input" type="radio" value="type4">
+                                <span class="radio-text">⏰ 延長保育予約</span>
+                                <span class="radio-desc">さらに延長した保育時間</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">３：詳細情報（自動表示）</label>
+                        <div class="details-box" id="white-box">
+                            <p class="details-placeholder">上記で選択した形態の詳細がここに表示されます</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="submit-btn" onclick="sendData()">
+                            <span class="btn-icon">📋</span>
+                            申し込みを確定する
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
     <div id="result"></div>
         

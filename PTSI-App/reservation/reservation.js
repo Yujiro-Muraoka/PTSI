@@ -9,10 +9,39 @@ window.onload = function() {
         // ログイン済み：学生情報を取得して画面を初期化
         console.log("認証済みユーザー: " + studentID);
         getStudentInfo(studentID);
+        initializeForm();
     } else {
         // 未ログイン：ログインページへリダイレクト
         console.log("未認証ユーザー：ログインページへリダイレクト");
         location.href = "../login";
+    }
+}
+
+/**
+ * フォームを初期化する関数
+ */
+function initializeForm() {
+    // 今日の日付をデフォルト値として設定
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        dateInput.valueAsDate = new Date();
+    }
+    
+    // ラジオボタンのイベントリスナーを設定
+    const radioInputs = document.querySelectorAll('input[name="radio"]');
+    const whiteBox = document.getElementById('white-box');
+    
+    radioInputs.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked && whiteBox) {
+                handleReservationTypeChange(this.value, whiteBox);
+            }
+        });
+    });
+    
+    // 初期状態での詳細ボックスの設定
+    if (whiteBox) {
+        whiteBox.innerHTML = '<p class="details-placeholder">上記で選択した形態の詳細がここに表示されます</p>';
     }
 }
 
@@ -47,8 +76,7 @@ function getCookie(name) {
     return "";
 }
 
-// 今日の日付をデフォルト値として設定
-document.getElementById('date').valueAsDate = new Date();
+// 日付の初期化はinitializeForm()で行う
 
 // 予約オプションのキャッシュ
 let reservationOptions = {};
@@ -185,17 +213,47 @@ function getStudentInfo(studentID) {
             const studentName = data.student.name;
             const studentClass = data.student.class;
             
-            // 学生情報を画面に反映（この部分は既存のコードに従って実装）
+            // 新しいHTML構造に対応した学生情報表示
+            const studentNameElement = document.getElementById('student-name');
+            const studentClassElement = document.getElementById('student-class');
+            const studentIdElement = document.getElementById('student-id-display');
+            
+            if (studentNameElement) {
+                studentNameElement.textContent = studentName;
+            }
+            if (studentClassElement) {
+                studentClassElement.textContent = `クラス: ${studentClass}`;
+            }
+            if (studentIdElement) {
+                studentIdElement.textContent = `学籍番号: ${studentID}`;
+            }
+            
+            // レガシー対応（既存のコードとの互換性）
             if (document.querySelector('.student-info')) {
                 document.querySelector('.student-info').innerHTML = 
                     `<p>学生名: ${studentName}</p><p>クラス: ${studentClass}</p>`;
             }
         } else {
             console.error('学生情報の取得に失敗しました:', data.message);
+            // エラー時のフォールバック表示
+            const studentNameElement = document.getElementById('student-name');
+            if (studentNameElement) {
+                studentNameElement.textContent = `学籍番号: ${studentID}`;
+            }
         }
     })
     .catch(error => {
         console.error('学生情報取得エラー:', error);
+        // エラー時のフォールバック表示
+        const studentNameElement = document.getElementById('student-name');
+        const studentIdElement = document.getElementById('student-id-display');
+        
+        if (studentNameElement) {
+            studentNameElement.textContent = '情報取得エラー';
+        }
+        if (studentIdElement) {
+            studentIdElement.textContent = `学籍番号: ${studentID}`;
+        }
     });
 }
 
