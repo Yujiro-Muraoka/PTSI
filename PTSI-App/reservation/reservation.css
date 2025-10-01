@@ -902,7 +902,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    color: #ffffff;
+    color: var(--reservation-text);
 }
 
 .Radio-Text::after {
@@ -966,7 +966,7 @@
 }
 
 .white-box .Radio-Text::after {
-    background-color: #ffffff;
+    background-color: var(--reservation-accent);
 }
 
 /* レスポンシブデザイン対応 */
